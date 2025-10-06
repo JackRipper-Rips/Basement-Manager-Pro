@@ -69,30 +69,30 @@ jobs:
       if: github.event_name == 'push'
       run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./publish/full
 
-    - name: Publish Framework-Dependent with Dependencies
+    - name: Publish Single-File Framework-Dependent
       if: github.event_name == 'push'
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained false -p:PublishSingleFile=true --output ./publish/deps
+      run: dotnet publish --configuration Release --runtime win-x64 --self-contained false -p:PublishSingleFile=true --output ./publish/singlefile
 
-    - name: Publish Framework-Dependent Minimal
+    - name: Publish Compressed Framework-Dependent
       if: github.event_name == 'push'
-      run: dotnet publish --configuration Release --no-self-contained --output ./publish/minimal
+      run: dotnet publish --configuration Release --runtime win-x64 --self-contained false -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true --output ./publish/compressed
 
     - name: Remove PDB files
       if: github.event_name == 'push'
       run: |
         Remove-Item -Path ./publish/full/*.pdb -ErrorAction SilentlyContinue
-        Remove-Item -Path ./publish/deps/*.pdb -ErrorAction SilentlyContinue
-        Remove-Item -Path ./publish/minimal/*.pdb -ErrorAction SilentlyContinue
+        Remove-Item -Path ./publish/singlefile/*.pdb -ErrorAction SilentlyContinue
+        Remove-Item -Path ./publish/compressed/*.pdb -ErrorAction SilentlyContinue
 
     - name: Create Release Archives
       if: github.event_name == 'push'
       run: |
         cd publish/full
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-full.zip *
-        cd ../deps
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-deps.zip *
-        cd ../minimal
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-minimal.zip *
+        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-full.zip SolusManifestApp.exe
+        cd ../singlefile
+        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-singlefile.zip SolusManifestApp.exe
+        cd ../compressed
+        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-compressed.zip SolusManifestApp.exe
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -113,8 +113,8 @@ jobs:
         generate_release_notes: true
         files: |
           SolusManifestApp-${{ steps.version.outputs.tag }}-full.zip
-          SolusManifestApp-${{ steps.version.outputs.tag }}-deps.zip
-          SolusManifestApp-${{ steps.version.outputs.tag }}-minimal.zip
+          SolusManifestApp-${{ steps.version.outputs.tag }}-singlefile.zip
+          SolusManifestApp-${{ steps.version.outputs.tag }}-compressed.zip
         body: |
           ## Release ${{ steps.version.outputs.tag }}
 
@@ -123,11 +123,11 @@ jobs:
 
           ### Downloads
 
-          Choose the version that fits your needs:
+          All builds are single .exe files. Choose the version that fits your needs:
 
           - **Full Self-Contained** (`-full.zip`): Everything included, no .NET runtime needed (~80MB)
-          - **Framework-Dependent with Dependencies** (`-deps.zip`): Requires .NET 8.0 runtime, includes other dependencies (~10MB)
-          - **Minimal** (`-minimal.zip`): Requires .NET 8.0 runtime, no bundled dependencies (~1MB)
+          - **Single-File** (`-singlefile.zip`): Requires .NET 8.0 runtime (~65MB)
+          - **Compressed** (`-compressed.zip`): Requires .NET 8.0 runtime, compressed executable (~60MB)
 
           ### Installation
           1. Download the zip file for your preferred variant
