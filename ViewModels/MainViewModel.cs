@@ -2,6 +2,7 @@ using SolusManifestApp.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SolusManifestApp.Services;
+using System;
 using System.Windows;
 
 namespace SolusManifestApp.ViewModels
@@ -11,6 +12,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SteamService _steamService;
         private readonly SettingsService _settingsService;
         private readonly UpdateService _updateService;
+        private readonly NotificationService _notificationService;
 
         [ObservableProperty]
         private object? _currentPage;
@@ -30,6 +32,7 @@ namespace SolusManifestApp.ViewModels
             SteamService steamService,
             SettingsService settingsService,
             UpdateService updateService,
+            NotificationService notificationService,
             HomeViewModel homeViewModel,
             LuaInstallerViewModel luaInstallerViewModel,
             LibraryViewModel libraryViewModel,
@@ -41,6 +44,7 @@ namespace SolusManifestApp.ViewModels
             _steamService = steamService;
             _settingsService = settingsService;
             _updateService = updateService;
+            _notificationService = notificationService;
 
             HomeViewModel = homeViewModel;
             LuaInstallerViewModel = luaInstallerViewModel;
@@ -156,6 +160,20 @@ namespace SolusManifestApp.ViewModels
         private void CloseWindow(Window window)
         {
             window.Close();
+        }
+
+        [RelayCommand]
+        private void RestartSteam()
+        {
+            try
+            {
+                _steamService.RestartSteam();
+                _notificationService.ShowSuccess("Steam is restarting...");
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ShowError($"Failed to restart Steam: {ex.Message}");
+            }
         }
 
         public async void CheckForUpdates()

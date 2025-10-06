@@ -979,9 +979,9 @@ namespace SolusManifestApp.Services
         }
 
         /// <summary>
-        /// Uninstalls a GreenLuma game by removing AppList entries, ACF file, and depot keys from Config.VDF
+        /// Uninstalls a GreenLuma game by querying SteamCMD API for complete depot list and removing all related files
         /// </summary>
-        public bool UninstallGreenLumaGame(string appId, string? customAppListPath = null)
+        public async Task<bool> UninstallGreenLumaGameAsync(string appId, string? customAppListPath = null)
         {
             try
             {
@@ -991,37 +991,38 @@ namespace SolusManifestApp.Services
                     return false;
                 }
 
-                // Get the game info to know which files to remove
-                var greenLumaGames = GetGreenLumaGames(customAppListPath);
-                var game = greenLumaGames.FirstOrDefault(g => g.AppId == appId);
+                // Get all depot IDs from SteamCMD API for complete cleanup
+                var depotIds = await GetAllDepotIdsFromApiAsync(appId);
 
-                if (game == null)
+                // Fallback: if API fails, get depot IDs from local ACF file
+                if (depotIds.Count == 0)
                 {
-                    return false;
+                    var greenLumaGames = GetGreenLumaGames(customAppListPath);
+                    var game = greenLumaGames.FirstOrDefault(g => g.AppId == appId);
+                    if (game != null)
+                    {
+                        depotIds = game.DepotIds;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
-                // 1. Remove all AppList .txt files for ALL depot IDs (including DLCs)
-                string appListPath;
-                if (!string.IsNullOrEmpty(customAppListPath))
-                {
-                    appListPath = customAppListPath;
-                }
-                else
-                {
-                    appListPath = Path.Combine(steamPath, "AppList");
-                }
+                // 1. Remove all AppList .txt files for ALL depot IDs
+                string appListPath = !string.IsNullOrEmpty(customAppListPath)
+                    ? customAppListPath
+                    : Path.Combine(steamPath, "AppList");
 
                 if (Directory.Exists(appListPath))
                 {
-                    // Read all .txt files in AppList and delete any that contain our depot IDs
                     var allAppListFiles = Directory.GetFiles(appListPath, "*.txt");
                     foreach (var file in allAppListFiles)
                     {
                         try
                         {
                             var fileContent = File.ReadAllText(file).Trim();
-                            // Check if this file contains any of our depot IDs
-                            if (game.DepotIds.Contains(fileContent))
+                            if (depotIds.Contains(fileContent))
                             {
                                 File.Delete(file);
                             }
@@ -1030,17 +1031,36 @@ namespace SolusManifestApp.Services
                     }
                 }
 
-                // 2. Remove ACF file
+                // 2. Remove ACF manifest file
+                var acfPath = Path.Combine(steamPath, "steamapps", $"appmanifest_{appId}.acf");
                 try
                 {
-                    if (File.Exists(game.AcfPath))
+                    if (File.Exists(acfPath))
                     {
-                        File.Delete(game.AcfPath);
+                        File.Delete(acfPath);
                     }
                 }
                 catch { }
 
-                // 3. Remove depot keys from Config.VDF
+                // 3. Remove depot manifest files ({depotId}_*.manifest)
+                var steamAppsPath = Path.Combine(steamPath, "steamapps");
+                if (Directory.Exists(steamAppsPath))
+                {
+                    foreach (var depotId in depotIds)
+                    {
+                        try
+                        {
+                            var manifestFiles = Directory.GetFiles(steamAppsPath, $"{depotId}_*.manifest");
+                            foreach (var manifestFile in manifestFiles)
+                            {
+                                File.Delete(manifestFile);
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // 4. Remove depot keys from Config.VDF
                 try
                 {
                     var configPath = Path.Combine(steamPath, "config", "config.vdf");
@@ -1048,26 +1068,13 @@ namespace SolusManifestApp.Services
                     {
                         var content = File.ReadAllText(configPath);
 
-                        // Remove depot keys for all depot IDs associated with this game
-                        foreach (var depotId in game.DepotIds)
+                        foreach (var depotId in depotIds)
                         {
-                            // Match the depot block: "depotId" { "DecryptionKey" "key_value" }
-                            // This pattern matches the depot ID and its entire block
                             var pattern = $@"""{depotId}""\s*\{{\s*""DecryptionKey""\s+""[^""]*""\s*\}}";
                             content = System.Text.RegularExpressions.Regex.Replace(content, pattern, "", System.Text.RegularExpressions.RegexOptions.Multiline);
                         }
 
                         File.WriteAllText(configPath, content);
-                    }
-                }
-                catch { }
-
-                // 4. Optionally delete the .lua file if it exists
-                try
-                {
-                    if (game.HasLuaFile && !string.IsNullOrEmpty(game.LuaFilePath) && File.Exists(game.LuaFilePath))
-                    {
-                        File.Delete(game.LuaFilePath);
                     }
                 }
                 catch { }
@@ -1078,6 +1085,50 @@ namespace SolusManifestApp.Services
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Gets all depot IDs for an app from SteamCMD API
+        /// </summary>
+        private async Task<List<string>> GetAllDepotIdsFromApiAsync(string appId)
+        {
+            var depotIds = new List<string>();
+
+            try
+            {
+                using var httpClient = new System.Net.Http.HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+                var response = await httpClient.GetAsync($"https://api.steamcmd.net/v1/info/{appId}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    return depotIds;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var jsonDoc = System.Text.Json.JsonDocument.Parse(json);
+
+                // Navigate to data -> {appId} -> depots
+                if (jsonDoc.RootElement.TryGetProperty("data", out var data) &&
+                    data.TryGetProperty(appId, out var appData) &&
+                    appData.TryGetProperty("depots", out var depots))
+                {
+                    foreach (var depot in depots.EnumerateObject())
+                    {
+                        // Only include numeric depot IDs (exclude "branches" and other non-depot keys)
+                        if (uint.TryParse(depot.Name, out _))
+                        {
+                            depotIds.Add(depot.Name);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Return empty list on error - will fallback to local data
+            }
+
+            return depotIds;
         }
     }
 }

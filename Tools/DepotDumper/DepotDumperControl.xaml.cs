@@ -87,6 +87,7 @@ namespace SolusManifestApp.Tools.DepotDumper
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             cancellationTokenSource?.Cancel();
+            steam3?.Disconnect(false); // Disconnect from Steam to abort QR code login
             AppendLog("Cancellation requested...");
             CancelButton.IsEnabled = false;
         }

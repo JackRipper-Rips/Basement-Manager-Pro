@@ -4,7 +4,6 @@
         xmlns:viewmodels="clr-namespace:SolusManifestApp.ViewModels"
         xmlns:views="clr-namespace:SolusManifestApp.Views"
         Title="Solus Manifest App"
-        Icon="/icon.ico"
         Height="1060"
         Width="1500"
         MinHeight="700"
@@ -69,11 +68,6 @@
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center"
                                 Margin="20,0">
-                        <Image Source="/icon.ico"
-                               Width="24"
-                               Height="24"
-                               Margin="0,0,10,0"
-                               VerticalAlignment="Center"/>
                         <TextBlock Text="Solus Manifest App"
                                    FontSize="18"
                                    FontWeight="Bold"
@@ -212,7 +206,13 @@
                 <Border Grid.Column="0"
                         Background="{DynamicResource SecondaryDarkBrush}"
                         CornerRadius="0,0,0,12">
-                    <StackPanel Margin="10">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="10">
                         <Button Style="{StaticResource NavButtonStyle}"
                                 Command="{Binding NavigateToHomeCommand}"
                                 Tag="{Binding CurrentPageName, Converter={StaticResource PageNameToTagConverter}, ConverterParameter=Home}">
@@ -279,6 +279,17 @@
                             </StackPanel>
                         </Button>
                     </StackPanel>
+
+                    <!-- Bottom Actions -->
+                    <Border Grid.Row="1"
+                            Margin="10,0,10,10">
+                        <Button Content="🔄 Restart Steam"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding RestartSteamCommand}"
+                                HorizontalAlignment="Stretch"
+                                Height="40"/>
+                    </Border>
+                </Grid>
                 </Border>
 
                 <!-- Page Content -->

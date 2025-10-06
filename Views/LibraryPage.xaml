@@ -266,7 +266,7 @@
                                         CornerRadius="8">
                                     <Grid>
                                         <!-- Show cached icon if available -->
-                                        <Image Source="{Binding CachedIconPath}"
+                                        <Image Source="{Binding CachedIconPath, Converter={StaticResource ImagePathConverter}}"
                                                Stretch="Uniform"
                                                Visibility="{Binding CachedIconPath, Converter={StaticResource NullToVisibilityConverter}}"/>
 
