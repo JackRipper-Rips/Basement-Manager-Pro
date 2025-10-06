@@ -1,52 +1,71 @@
 using System;
 using System.Threading.Tasks;
+using System.Windows;
 using SteamKit2.Authentication;
 
 namespace SolusManifestApp.Tools.DepotDumper
 {
     class UserConsoleAuthenticator : IAuthenticator
     {
-        public event Action<string>? OnPrompt;
+        private readonly TaskCompletionSource<bool> _cancellationSource = new();
 
         public async Task<string> GetDeviceCodeAsync(bool previousCodeWasIncorrect)
         {
-            return await Task.Run(() =>
-            {
-                if (previousCodeWasIncorrect)
-                {
-                    OnPrompt?.Invoke("The previous code was incorrect. Please enter a new code:");
-                }
-                else
-                {
-                    OnPrompt?.Invoke("Please enter your 2FA code:");
-                }
+            string prompt = previousCodeWasIncorrect
+                ? "The previous code was incorrect. Please enter your 2FA code from your authenticator app:"
+                : "Please enter your 2FA code from your authenticator app:";
 
-                return Console.ReadLine() ?? string.Empty;
-            });
+            return await ShowDialogAsync(prompt);
         }
 
         public async Task<string> GetEmailCodeAsync(string email, bool previousCodeWasIncorrect)
         {
-            return await Task.Run(() =>
-            {
-                if (previousCodeWasIncorrect)
-                {
-                    OnPrompt?.Invoke($"The previous code sent to {email} was incorrect. Please enter the new code:");
-                }
-                else
-                {
-                    OnPrompt?.Invoke($"Please enter the code sent to {email}:");
-                }
+            string prompt = previousCodeWasIncorrect
+                ? $"The previous code was incorrect. Please enter the new code sent to {email}:"
+                : $"Please enter the authentication code sent to {email}:";
 
-                return Console.ReadLine() ?? string.Empty;
-            });
+            return await ShowDialogAsync(prompt);
         }
 
         public async Task<bool> AcceptDeviceConfirmationAsync()
         {
             // For QR code authentication, this should just return true
-            // The QR code flow doesn't require explicit confirmation
             return await Task.FromResult(true);
+        }
+
+        private async Task<string> ShowDialogAsync(string prompt)
+        {
+            var tcs = new TaskCompletionSource<string>();
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                try
+                {
+                    var dialog = new TwoFactorDialog(prompt)
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+
+                    var result = dialog.ShowDialog();
+
+                    if (result == true && !dialog.WasCancelled)
+                    {
+                        tcs.SetResult(dialog.Code);
+                    }
+                    else
+                    {
+                        // User cancelled, throw to abort authentication
+                        _cancellationSource.TrySetResult(true);
+                        tcs.SetResult(string.Empty);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            return await tcs.Task;
         }
     }
 }
