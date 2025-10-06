@@ -1,0 +1,150 @@
+<UserControl x:Class="SolusManifestApp.Views.StorePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0"
+                   Text="Store"
+                   FontSize="32"
+                   FontWeight="Bold"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
+                   Margin="0,0,0,20"/>
+
+        <!-- Search Bar -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0"
+                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Padding="15"
+                     Margin="0,0,10,0">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding SearchGamesCommand}"/>
+                </TextBox.InputBindings>
+            </TextBox>
+
+            <Button Grid.Column="1"
+                    Content="🔍 Search"
+                    Command="{Binding SearchGamesCommand}"
+                    Padding="30,10"/>
+        </Grid>
+
+        <!-- Status -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,15">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       FontSize="14"/>
+            <Button Content="Load All Games"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding LoadGamesCommand}"
+                    Padding="15,5"
+                    Margin="20,0,0,0"/>
+        </StackPanel>
+
+        <!-- Games Grid -->
+        <ScrollViewer Grid.Row="3"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding AvailableGames}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ModernCardStyle}"
+                                Width="280"
+                                Height="350"
+                                Margin="0,0,20,20">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="160"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Game Image -->
+                                <Border Grid.Row="0"
+                                        Background="{DynamicResource SecondaryDarkBrush}"
+                                        CornerRadius="8">
+                                    <Grid>
+                                        <!-- Show cached icon if available -->
+                                        <Image Source="{Binding CachedIconPath}"
+                                               Stretch="Uniform"
+                                               Visibility="{Binding CachedIconPath, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                                        <!-- Placeholder if no icon -->
+                                        <TextBlock Text="🎮"
+                                                   FontSize="64"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Visibility="{Binding CachedIconPath, Converter={StaticResource InverseNullToVisibilityConverter}}"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Game Info -->
+                                <StackPanel Grid.Row="1" Margin="10">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="Wrap"
+                                               MaxHeight="40"/>
+                                    <TextBlock Text="{Binding Description}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               TextWrapping="Wrap"
+                                               MaxHeight="60"
+                                               Margin="0,8,0,0"/>
+                                    <TextBlock Text="{Binding AppId, StringFormat='App ID: {0}'}"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+
+                                <!-- Download Button -->
+                                <Button Grid.Row="2"
+                                        Content="⬇️ Download"
+                                        Command="{Binding DataContext.DownloadGameCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Margin="10"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Grid Grid.Row="3"
+              Background="#AA000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="⏳"
+                           FontSize="48"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+                <TextBlock Text="Loading..."
+                           FontSize="18"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

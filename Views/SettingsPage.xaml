@@ -1,0 +1,464 @@
+<UserControl x:Class="SolusManifestApp.Views.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,30">
+            <TextBlock Text="Settings"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+            <TextBlock Text=" *"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource AccentBrush}"
+                       Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <!-- Tabbed Settings -->
+        <TabControl Grid.Row="1"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,0,0,20">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border"
+                                        Background="{DynamicResource SecondaryDarkBrush}"
+                                        BorderThickness="0"
+                                        CornerRadius="8,8,0,0"
+                                        Padding="20,10"
+                                        Margin="0,0,5,0">
+                                    <ContentPresenter ContentSource="Header"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Main Settings Tab -->
+            <TabItem Header="Main Settings">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                        <!-- API Key Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="API Configuration"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="API Key (must start with 'smm')"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Validate"
+                                            Command="{Binding ValidateApiKeyCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+
+                                <TextBlock Text="{Binding StatusMessage}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           FontSize="12"
+                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Steam Path Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Steam Configuration"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Steam Installation Path"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding SteamPath, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="True"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Browse"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding BrowseSteamPathCommand}"
+                                            Padding="20,8"
+                                            Margin="0,0,10,0"/>
+                                    <Button Grid.Column="2"
+                                            Content="Auto-Detect"
+                                            Command="{Binding DetectSteamCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tool Mode Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Tool Mode"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Select the mode for game downloads and depot management"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <RadioButton Content="SteamTools"
+                                                IsChecked="{Binding IsSteamToolsMode}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                FontSize="14"
+                                                Margin="0,0,30,0"/>
+                                    <RadioButton Content="GreenLuma"
+                                                IsChecked="{Binding IsGreenLumaMode}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                FontSize="14"/>
+                                </StackPanel>
+
+                                <TextBlock Text="• SteamTools: Standard download mode"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,3"/>
+                                <TextBlock Text="• GreenLuma: Advanced depot control with language selection"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Downloads Path Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Downloads"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Downloads Folder"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding DownloadsPath, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="True"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Browse"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding BrowseDownloadsPathCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Application Settings Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Application Settings"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <CheckBox Content="Auto-check for updates on startup"
+                                          IsChecked="{Binding AutoCheckUpdates}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,10"/>
+
+                                <CheckBox Content="Minimize to system tray"
+                                          IsChecked="{Binding MinimizeToTray}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,10"/>
+
+                                <CheckBox Content="Auto-install after download completes"
+                                          IsChecked="{Binding AutoInstallAfterDownload}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,10"/>
+
+                                <CheckBox Content="Show notifications"
+                                          IsChecked="{Binding ShowNotifications}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Theme Section -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Theme"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Choose your preferred color theme"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <ComboBox SelectedValue="{Binding SelectedThemeName}"
+                                          SelectedValuePath="Tag"
+                                          FontSize="14"
+                                          Padding="10,8"
+                                          Margin="0,0,0,10">
+                                    <ComboBoxItem Content="Default (Steam)" Tag="Default"/>
+                                    <ComboBoxItem Content="True Dark Mode" Tag="Dark"/>
+                                    <ComboBoxItem Content="Light Mode" Tag="Light"/>
+                                    <ComboBoxItem Content="Cherry" Tag="Cherry"/>
+                                    <ComboBoxItem Content="Sunset" Tag="Sunset"/>
+                                    <ComboBoxItem Content="Forest" Tag="Forest"/>
+                                    <ComboBoxItem Content="Grape" Tag="Grape"/>
+                                    <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                                </ComboBox>
+
+                                <TextBlock Text="Theme will be applied when you save settings"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="11"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- GreenLuma Settings Tab -->
+            <TabItem Header="GreenLuma Settings" Visibility="{Binding IsGreenLumaMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                        <!-- GreenLuma Mode Selection -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="GreenLuma Mode"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Select GreenLuma sub-mode"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <RadioButton Content="Normal"
+                                                IsChecked="{Binding IsGreenLumaNormalMode}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                FontSize="14"
+                                                Margin="0,0,20,0"/>
+                                    <RadioButton Content="Stealth (Any Folder)"
+                                                IsChecked="{Binding IsGreenLumaStealthAnyFolderMode}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                FontSize="14"
+                                                Margin="0,0,20,0"/>
+                                    <RadioButton Content="Stealth (User32)"
+                                                IsChecked="{Binding IsGreenLumaStealthUser32Mode}"
+                                                Foreground="{DynamicResource TextPrimaryBrush}"
+                                                FontSize="14"/>
+                                </StackPanel>
+
+                                <!-- Advanced Mode Checkbox (Normal Mode Only) -->
+                                <CheckBox Content="Advanced: Allow custom DLLInjector path"
+                                          IsChecked="{Binding IsAdvancedNormalMode}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          FontSize="12"
+                                          Margin="0,0,0,15"
+                                          Visibility="{Binding IsGreenLumaNormalMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                <TextBlock Text="• Normal: DLLInjector at {SteamPath}/DLLInjector.exe, AppList at {SteamPath}/AppList"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,3"/>
+                                <TextBlock Text="• Stealth (Any Folder): For best security - DLLInjector in custom location, AppList in same folder"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           Margin="0,0,0,3"/>
+                                <TextBlock Text="• Stealth (User32): Launches Steam normally"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- DLLInjector Path (Normal Mode Advanced) -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20"
+                                Visibility="{Binding ShowAdvancedNormalModeSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="DLLInjector Configuration (Advanced)"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="DLLInjector.exe Location"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding DllInjectorPath, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="True"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Browse"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding BrowseDLLInjectorPathCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+
+                                <TextBlock Text="AppList will still be generated at {SteamPath}/AppList"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- DLLInjector Path (Stealth Any Folder Mode Only) -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20"
+                                Visibility="{Binding IsGreenLumaStealthAnyFolderMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="DLLInjector Configuration"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="DLLInjector.exe Location"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding DllInjectorPath, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="True"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Browse"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding BrowseDLLInjectorPathCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+
+                                <TextBlock Text="AppList will be generated in the same folder as DLLInjector.exe"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Library Folder Selection -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Installation Location"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <CheckBox Content="Use default Steam library location"
+                                          IsChecked="{Binding UseDefaultInstallLocation}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Select Library Folder"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"
+                                           Visibility="{Binding UseDefaultInstallLocation, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                                <ComboBox ItemsSource="{Binding LibraryFolders}"
+                                          SelectedItem="{Binding SelectedLibraryFolder}"
+                                          Visibility="{Binding UseDefaultInstallLocation, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                                          Margin="0,0,0,10"/>
+
+                                <TextBlock Text="Select where to install .acf files"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Fixed Save Button at Bottom -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource BorderBrush}"
+                Padding="0,15,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Padding="40,12"
+                        Command="{Binding SaveSettingsCommand}"
+                        FontSize="16"
+                        FontWeight="SemiBold">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="💾 Save Settings"/>
+                        <TextBlock Text=" *"
+                                   Foreground="White"
+                                   FontWeight="Bold"
+                                   Margin="5,0,0,0"
+                                   Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Button>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center"
+                           Margin="20,0,0,0"
+                           FontSize="14"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
