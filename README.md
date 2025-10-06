@@ -29,7 +29,7 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 | **UI Themes** | 8 Premium Themes |
 | **Integrated Tools** | 3 (Depot Dumper, Config VDF Extractor, Lua Installer) |
 | **Installation Modes** | 2 (SteamTools, GreenLuma with 3 sub-modes) |
-| **Lines of Code** | ~16,000+ |
+| **Lines of Code** | 16,711 |
 | **NuGet Packages** | 9 Core Dependencies |
 | **Release Type** | Self-Contained (No .NET Install Required) |
 
@@ -42,6 +42,19 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 - **Data Serialization**: Newtonsoft.Json 13.0.3, protobuf-net 3.2.45
 - **Utilities**: QRCoder 1.6.0, System.IO.Compression
 - **Dependency Injection**: Microsoft.Extensions.DependencyInjection 8.0.0
+
+### 📈 Lines of Code
+
+| Language | Files | Lines | Percentage |
+|----------|-------|-------|------------|
+| **C#** | 59 | 11,139 | 66.6% |
+| **XAML** | 23 | 3,509 | 21.0% |
+| **Markdown** | 4 | 1,887 | 11.3% |
+| **YAML** | 2 | 144 | 0.9% |
+| **Project Files** | 1 | 32 | 0.2% |
+| **Total** | **89** | **16,711** | **100%** |
+
+*Excludes generated files, bin/, obj/, and dependencies*
 
 ## ✨ Key Features
 
