@@ -6,6 +6,7 @@ using SolusManifestApp.ViewModels;
 using SolusManifestApp.Views;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace SolusManifestApp
@@ -58,11 +59,8 @@ namespace SolusManifestApp
 
         protected override async void OnStartup(StartupEventArgs e)
         {
-            // Register protocol if not already registered
-            if (!ProtocolRegistrationHelper.IsProtocolRegistered())
-            {
-                ProtocolRegistrationHelper.RegisterProtocol();
-            }
+            // Register protocol (will update if path changed)
+            ProtocolRegistrationHelper.RegisterProtocol();
 
             // Check for single instance
             _singleInstance = new SingleInstanceHelper();
@@ -106,7 +104,81 @@ namespace SolusManifestApp
                 HandleProtocolUrl(string.Join(" ", e.Args));
             }
 
+            // Check for updates if enabled
+            if (settings.AutoCheckUpdates)
+            {
+                _ = CheckForUpdatesAsync();
+            }
+
             base.OnStartup(e);
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                var updateService = _host.Services.GetRequiredService<UpdateService>();
+                var notificationService = _host.Services.GetRequiredService<NotificationService>();
+
+                var (hasUpdate, updateInfo) = await updateService.CheckForUpdatesAsync();
+
+                if (hasUpdate && updateInfo != null)
+                {
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        var result = MessageBoxHelper.Show(
+                            $"A new version ({updateInfo.TagName}) is available!\n\nWould you like to download and install it now?\n\nCurrent version: {updateService.GetCurrentVersion()}",
+                            "Update Available",
+                            System.Windows.MessageBoxButton.YesNo,
+                            System.Windows.MessageBoxImage.Information);
+
+                        if (result == System.Windows.MessageBoxResult.Yes)
+                        {
+                            _ = DownloadAndInstallUpdateAsync(updateInfo);
+                        }
+                    });
+                }
+            }
+            catch
+            {
+                // Silently fail if update check fails
+            }
+        }
+
+        private async Task DownloadAndInstallUpdateAsync(UpdateInfo updateInfo)
+        {
+            try
+            {
+                var updateService = _host.Services.GetRequiredService<UpdateService>();
+                var notificationService = _host.Services.GetRequiredService<NotificationService>();
+
+                notificationService.ShowNotification("Downloading Update", "Downloading the latest version...", NotificationType.Info);
+
+                var updatePath = await updateService.DownloadUpdateAsync(updateInfo);
+
+                if (!string.IsNullOrEmpty(updatePath))
+                {
+                    await Dispatcher.InvokeAsync(() =>
+                    {
+                        var result = MessageBoxHelper.Show(
+                            "Update downloaded successfully!\n\nThe app will now restart to install the update.",
+                            "Update Ready",
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Information);
+
+                        updateService.InstallUpdate(updatePath);
+                    });
+                }
+                else
+                {
+                    notificationService.ShowError("Failed to download update. Please try again later.", "Update Failed");
+                }
+            }
+            catch
+            {
+                var notificationService = _host.Services.GetRequiredService<NotificationService>();
+                notificationService.ShowError("An error occurred while updating. Please try again later.", "Update Error");
+            }
         }
 
         private async void HandleProtocolUrl(string url)

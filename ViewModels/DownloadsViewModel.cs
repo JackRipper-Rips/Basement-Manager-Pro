@@ -21,6 +21,7 @@ namespace SolusManifestApp.ViewModels
         private readonly DepotDownloadService _depotDownloadService;
         private readonly SteamService _steamService;
         private readonly SteamApiService _steamApiService;
+        private readonly NotificationService _notificationService;
 
         [ObservableProperty]
         private ObservableCollection<DownloadItem> _activeDownloads;
@@ -40,7 +41,8 @@ namespace SolusManifestApp.ViewModels
             SettingsService settingsService,
             DepotDownloadService depotDownloadService,
             SteamService steamService,
-            SteamApiService steamApiService)
+            SteamApiService steamApiService,
+            NotificationService notificationService)
         {
             _downloadService = downloadService;
             _fileInstallService = fileInstallService;
@@ -48,6 +50,7 @@ namespace SolusManifestApp.ViewModels
             _depotDownloadService = depotDownloadService;
             _steamService = steamService;
             _steamApiService = steamApiService;
+            _notificationService = notificationService;
 
             ActiveDownloads = _downloadService.ActiveDownloads;
 
@@ -274,26 +277,13 @@ namespace SolusManifestApp.ViewModels
                     }
                 }
 
-                MessageBoxHelper.Show(
-                    $"{fileName} has been installed successfully!\n\nRestart Steam for changes to take effect.",
-                    "Installation Complete",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                _notificationService.ShowSuccess($"{fileName} has been installed successfully! Restart Steam for changes to take effect.", "Installation Complete");
 
                 StatusMessage = $"{fileName} installed successfully";
 
-                // Ask if user wants to delete the ZIP
-                var result = MessageBoxHelper.Show(
-                    "Would you like to delete the downloaded ZIP file?",
-                    "Delete ZIP",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    File.Delete(filePath);
-                    RefreshDownloadedFiles();
-                }
+                // Auto-delete the ZIP file
+                File.Delete(filePath);
+                RefreshDownloadedFiles();
             }
             catch (System.Exception ex)
             {

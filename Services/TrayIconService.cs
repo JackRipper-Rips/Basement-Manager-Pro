@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
+using System.Reflection;
 
 namespace SolusManifestApp.Services
 {
@@ -26,18 +27,31 @@ namespace SolusManifestApp.Services
                 Visible = false
             };
 
-            // Load icon from resources
+            // Load icon from embedded resources first, then try file path
             try
             {
-                var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
-                if (File.Exists(iconPath))
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = "SolusManifestApp.icon.ico";
+
+                using (var stream = assembly.GetManifestResourceStream(resourceName))
                 {
-                    _notifyIcon.Icon = new Icon(iconPath);
-                }
-                else
-                {
-                    // Use default application icon as fallback
-                    _notifyIcon.Icon = SystemIcons.Application;
+                    if (stream != null)
+                    {
+                        _notifyIcon.Icon = new Icon(stream);
+                    }
+                    else
+                    {
+                        // Try loading from file path as fallback
+                        var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                        if (File.Exists(iconPath))
+                        {
+                            _notifyIcon.Icon = new Icon(iconPath);
+                        }
+                        else
+                        {
+                            _notifyIcon.Icon = SystemIcons.Application;
+                        }
+                    }
                 }
             }
             catch

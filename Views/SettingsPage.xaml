@@ -150,11 +150,13 @@
                                                 IsChecked="{Binding IsSteamToolsMode}"
                                                 Foreground="{DynamicResource TextPrimaryBrush}"
                                                 FontSize="14"
-                                                Margin="0,0,30,0"/>
+                                                Margin="0,0,30,0"
+                                                ToolTip="Standard mode for downloading and installing games"/>
                                     <RadioButton Content="GreenLuma"
                                                 IsChecked="{Binding IsGreenLumaMode}"
                                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                                FontSize="14"/>
+                                                FontSize="14"
+                                                ToolTip="Advanced mode with depot control and language selection for GreenLuma"/>
                                 </StackPanel>
 
                                 <TextBlock Text="• SteamTools: Standard download mode"
@@ -210,21 +212,25 @@
                                 <CheckBox Content="Auto-check for updates on startup"
                                           IsChecked="{Binding AutoCheckUpdates}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"/>
+                                          Margin="0,0,0,10"
+                                          ToolTip="Automatically check for new versions when the app starts"/>
 
                                 <CheckBox Content="Minimize to system tray"
                                           IsChecked="{Binding MinimizeToTray}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"/>
+                                          Margin="0,0,0,10"
+                                          ToolTip="When clicking the X button, hide to system tray instead of closing the app"/>
 
                                 <CheckBox Content="Auto-install after download completes"
                                           IsChecked="{Binding AutoInstallAfterDownload}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"/>
+                                          Margin="0,0,0,10"
+                                          ToolTip="Automatically install games after they finish downloading"/>
 
                                 <CheckBox Content="Show notifications"
                                           IsChecked="{Binding ShowNotifications}"
-                                          Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          ToolTip="Show Windows toast notifications (when OFF, uses traditional message boxes)"/>
                             </StackPanel>
                         </Border>
 
@@ -291,16 +297,19 @@
                                                 IsChecked="{Binding IsGreenLumaNormalMode}"
                                                 Foreground="{DynamicResource TextPrimaryBrush}"
                                                 FontSize="14"
-                                                Margin="0,0,20,0"/>
+                                                Margin="0,0,20,0"
+                                                ToolTip="Standard GreenLuma mode with DLLInjector at Steam path"/>
                                     <RadioButton Content="Stealth (Any Folder)"
                                                 IsChecked="{Binding IsGreenLumaStealthAnyFolderMode}"
                                                 Foreground="{DynamicResource TextPrimaryBrush}"
                                                 FontSize="14"
-                                                Margin="0,0,20,0"/>
+                                                Margin="0,0,20,0"
+                                                ToolTip="Advanced stealth mode - DLLInjector in custom location for better security"/>
                                     <RadioButton Content="Stealth (User32)"
                                                 IsChecked="{Binding IsGreenLumaStealthUser32Mode}"
                                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                                FontSize="14"/>
+                                                FontSize="14"
+                                                ToolTip="Launches Steam normally without DLLInjector"/>
                                 </StackPanel>
 
                                 <!-- Advanced Mode Checkbox (Normal Mode Only) -->
@@ -309,7 +318,8 @@
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           FontSize="12"
                                           Margin="0,0,0,15"
-                                          Visibility="{Binding IsGreenLumaNormalMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                          Visibility="{Binding IsGreenLumaNormalMode, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                          ToolTip="Enable custom DLLInjector location while keeping AppList at Steam path"/>
 
                                 <TextBlock Text="• Normal: DLLInjector at {SteamPath}/DLLInjector.exe, AppList at {SteamPath}/AppList"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
@@ -411,7 +421,8 @@
                                 <CheckBox Content="Use default Steam library location"
                                           IsChecked="{Binding UseDefaultInstallLocation}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"/>
+                                          Margin="0,0,0,10"
+                                          ToolTip="Install .acf files to the default Steam library folder"/>
 
                                 <TextBlock Text="Select Library Folder"
                                            Foreground="{DynamicResource TextSecondaryBrush}"

@@ -1,5 +1,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
+using SolusManifestApp.Helpers;
 using System;
+using System.Windows;
 
 namespace SolusManifestApp.Services
 {
@@ -25,21 +27,38 @@ namespace SolusManifestApp.Services
         public void ShowNotification(string title, string message, NotificationType type = NotificationType.Info)
         {
             var settings = _settingsService.LoadSettings();
-            if (!settings.ShowNotifications)
-                return;
 
-            try
+            // If toast notifications are enabled, use them
+            if (settings.ShowNotifications)
             {
-                new ToastContentBuilder()
-                    .AddText(title)
-                    .AddText(message)
-                    .Show();
+                try
+                {
+                    new ToastContentBuilder()
+                        .AddText(title)
+                        .AddText(message)
+                        .Show();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    // If toast fails, fall through to MessageBox
+                    System.Diagnostics.Debug.WriteLine($"Toast notification failed: {ex.Message}");
+                }
             }
-            catch (Exception ex)
+
+            // Fall back to MessageBox when notifications disabled or toast fails
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                // If toast fails, log the error but don't crash
-                System.Diagnostics.Debug.WriteLine($"Toast notification failed: {ex.Message}");
-            }
+                var icon = type switch
+                {
+                    NotificationType.Success => MessageBoxImage.Information,
+                    NotificationType.Warning => MessageBoxImage.Warning,
+                    NotificationType.Error => MessageBoxImage.Error,
+                    _ => MessageBoxImage.Information
+                };
+
+                MessageBoxHelper.Show(message, title, MessageBoxButton.OK, icon);
+            });
         }
 
         public void ShowSuccess(string message, string title = "Success")

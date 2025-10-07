@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -23,26 +25,36 @@ namespace SolusManifestApp.Services
 
         [JsonProperty("published_at")]
         public DateTime PublishedAt { get; set; }
+
+        [JsonProperty("assets")]
+        public UpdateAsset[] Assets { get; set; } = Array.Empty<UpdateAsset>();
+    }
+
+    public class UpdateAsset
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonProperty("browser_download_url")]
+        public string BrowserDownloadUrl { get; set; } = string.Empty;
+
+        [JsonProperty("size")]
+        public long Size { get; set; }
     }
 
     public class UpdateService
     {
         private readonly HttpClient _httpClient;
         private const string GitHubApiUrl = "https://api.github.com/repos/{owner}/{repo}/releases/latest";
-        private string _owner = "YourGitHubUsername"; // TODO: Replace with actual username
-        private string _repo = "MorrenusApp"; // TODO: Replace with actual repo name
+        private const string Owner = "MorrenusGames";
+        private const string Repo = "Solus-Manifest-App";
 
         public UpdateService()
         {
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "MorrenusApp");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "SolusManifestApp");
         }
 
-        public void SetRepository(string owner, string repo)
-        {
-            _owner = owner;
-            _repo = repo;
-        }
 
         public string GetCurrentVersion()
         {
@@ -54,7 +66,7 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                var url = GitHubApiUrl.Replace("{owner}", _owner).Replace("{repo}", _repo);
+                var url = GitHubApiUrl.Replace("{owner}", Owner).Replace("{repo}", Repo);
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -80,6 +92,92 @@ namespace SolusManifestApp.Services
             catch
             {
                 return (false, null);
+            }
+        }
+
+        public async Task<string?> DownloadUpdateAsync(UpdateInfo updateInfo, IProgress<double>? progress = null)
+        {
+            try
+            {
+                // Find the single-file exe (smallest file, likely the framework-dependent version)
+                var exeAsset = updateInfo.Assets
+                    .Where(a => a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(a => a.Size)
+                    .FirstOrDefault();
+
+                if (exeAsset == null)
+                {
+                    return null;
+                }
+
+                var tempPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.exe");
+
+                using var response = await _httpClient.GetAsync(exeAsset.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+
+                var totalBytes = response.Content.Headers.ContentLength ?? 0;
+                var downloadedBytes = 0L;
+
+                using var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                using var contentStream = await response.Content.ReadAsStreamAsync();
+
+                var buffer = new byte[8192];
+                int bytesRead;
+
+                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+                    downloadedBytes += bytesRead;
+
+                    if (totalBytes > 0 && progress != null)
+                    {
+                        var progressPercent = (double)downloadedBytes / totalBytes * 100;
+                        progress.Report(progressPercent);
+                    }
+                }
+
+                return tempPath;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void InstallUpdate(string updatePath)
+        {
+            try
+            {
+                var currentExePath = Process.GetCurrentProcess().MainModule?.FileName;
+                if (string.IsNullOrEmpty(currentExePath))
+                    return;
+
+                // Create a batch script to replace the exe after the app closes
+                var batchPath = Path.Combine(Path.GetTempPath(), "update_solus.bat");
+                var batchContent = $@"
+@echo off
+timeout /t 2 /nobreak > nul
+del ""{currentExePath}""
+move /y ""{updatePath}"" ""{currentExePath}""
+start """" ""{currentExePath}""
+del ""{batchPath}""
+";
+
+                File.WriteAllText(batchPath, batchContent);
+
+                // Start the batch file and exit
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = batchPath,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                });
+
+                System.Windows.Application.Current.Shutdown();
+            }
+            catch
+            {
+                // Failed to install update
             }
         }
 

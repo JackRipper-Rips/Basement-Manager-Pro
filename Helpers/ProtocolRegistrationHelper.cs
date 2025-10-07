@@ -31,6 +31,27 @@ namespace SolusManifestApp.Helpers
                 if (string.IsNullOrEmpty(exePath))
                     return false;
 
+                // Check if already registered with correct path
+                var commandPath = $@"{RegistryPath}\shell\open\command";
+                using (var commandKey = Registry.CurrentUser.OpenSubKey(commandPath))
+                {
+                    if (commandKey != null)
+                    {
+                        var currentCommand = commandKey.GetValue("")?.ToString() ?? "";
+                        var expectedCommand = $"\"{exePath}\" \"%1\"";
+
+                        // If path matches, no need to re-register
+                        if (currentCommand.Equals(expectedCommand, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+
+                        // Path is different, delete old registration
+                        UnregisterProtocol();
+                    }
+                }
+
+                // Register with new path
                 using var key = Registry.CurrentUser.CreateSubKey(RegistryPath);
                 key.SetValue("", $"URL:{ProtocolName} Protocol");
                 key.SetValue("URL Protocol", "");
