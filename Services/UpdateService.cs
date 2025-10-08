@@ -100,10 +100,10 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                // Find the win-x64 zip file matching pattern: SolusManifestApp-v1.0.0-win-x64.zip
+                // Find the single-file zip matching pattern: SolusManifestApp-v2025.10.07.27-singlefile.zip
                 var zipAsset = updateInfo.Assets
                     .FirstOrDefault(a => a.Name.StartsWith("SolusManifestApp-", StringComparison.OrdinalIgnoreCase)
-                                      && a.Name.EndsWith("-win-x64.zip", StringComparison.OrdinalIgnoreCase));
+                                      && a.Name.EndsWith("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
 
                 if (zipAsset == null)
                 {
