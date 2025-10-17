@@ -398,13 +398,24 @@ namespace SolusManifestApp.ViewModels
                             return;
                         }
 
-                        // Prepare depot list with keys
+                        // Extract manifest files from zip
+                        StatusMessage = "Extracting manifest files...";
+                        var manifestFiles = _downloadService.ExtractManifestFilesFromZip(SelectedFilePath, appId);
+
+                        // Prepare depot list with keys and manifest files
                         var depotsToDownload = new List<(uint depotId, string depotKey, string? manifestFile)>();
                         foreach (var selectedDepotId in depotDialog.SelectedDepotIds)
                         {
                             if (uint.TryParse(selectedDepotId, out var depotId) && parsedDepotKeys.TryGetValue(selectedDepotId, out var depotKey))
                             {
-                                depotsToDownload.Add((depotId, depotKey, null));
+                                // Try to get the manifest file path for this depot
+                                string? manifestFilePath = null;
+                                if (manifestFiles.TryGetValue(selectedDepotId, out var manifestPath))
+                                {
+                                    manifestFilePath = manifestPath;
+                                }
+
+                                depotsToDownload.Add((depotId, depotKey, manifestFilePath));
                             }
                         }
 

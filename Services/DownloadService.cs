@@ -693,6 +693,39 @@ namespace SolusManifestApp.Services
             return reader.ReadToEnd();
         }
 
+        /// <summary>
+        /// Extracts manifest files from the zip to a temporary directory
+        /// Returns a dictionary mapping depotId to manifest file path
+        /// </summary>
+        public Dictionary<string, string> ExtractManifestFilesFromZip(string zipFilePath, string appId)
+        {
+            var manifestFiles = new Dictionary<string, string>();
+            var tempDir = Path.Combine(Path.GetTempPath(), $"SolusManifests_{appId}_{Guid.NewGuid()}");
+            Directory.CreateDirectory(tempDir);
+
+            using var archive = ZipFile.OpenRead(zipFilePath);
+            foreach (var entry in archive.Entries)
+            {
+                // Look for .manifest files
+                if (entry.Name.EndsWith(".manifest", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Extract manifest file to temp directory
+                    var destPath = Path.Combine(tempDir, entry.Name);
+                    entry.ExtractToFile(destPath, true);
+
+                    // Try to extract depot ID from filename (format: depotId_manifestId.manifest)
+                    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(entry.Name);
+                    var parts = fileNameWithoutExt.Split('_');
+                    if (parts.Length >= 1 && uint.TryParse(parts[0], out var depotId))
+                    {
+                        manifestFiles[parts[0]] = destPath;
+                    }
+                }
+            }
+
+            return manifestFiles;
+        }
+
         public async Task<bool> DownloadViaDepotDownloaderAsync(
             string appId,
             string gameName,
