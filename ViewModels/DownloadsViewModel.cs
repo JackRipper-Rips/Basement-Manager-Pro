@@ -63,10 +63,18 @@ namespace SolusManifestApp.ViewModels
             _downloadService.DownloadCompleted += OnDownloadCompleted;
         }
 
-        private void OnDownloadCompleted(object? sender, DownloadItem downloadItem)
+        private async void OnDownloadCompleted(object? sender, DownloadItem downloadItem)
         {
             // Auto-refresh the downloaded files list when a download completes
             RefreshDownloadedFiles();
+
+            // Check if auto-install is enabled
+            var settings = _settingsService.LoadSettings();
+            if (settings.AutoInstallAfterDownload && !string.IsNullOrEmpty(downloadItem.DestinationPath) && File.Exists(downloadItem.DestinationPath))
+            {
+                // Auto-install the downloaded file
+                await InstallFile(downloadItem.DestinationPath);
+            }
         }
 
         [RelayCommand]

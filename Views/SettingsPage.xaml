@@ -56,222 +56,333 @@
                 </Style>
             </TabControl.Resources>
 
-            <!-- Main Settings Tab -->
-            <TabItem Header="Main Settings">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+            <!-- General Tab with Sub-Tabs -->
+            <TabItem Header="General">
+                <TabControl Background="Transparent" BorderThickness="0" Margin="10">
 
-                        <!-- API Key Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="API Configuration"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
+                    <!-- API Configuration Sub-Tab -->
+                    <TabItem Header="API Configuration">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="API Key"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
 
-                                <TextBlock Text="API Key (must start with 'smm')"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,5"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                        <TextBlock Text="API Key (must start with 'smm')"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="0"
-                                             Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
-                                             Margin="0,0,10,0"/>
-                                    <Button Grid.Column="1"
-                                            Content="Validate"
-                                            Command="{Binding ValidateApiKeyCommand}"
-                                            Padding="20,8"/>
-                                </Grid>
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                                     Margin="0,0,10,0"/>
+                                            <Button Grid.Column="1"
+                                                    Content="Validate"
+                                                    Command="{Binding ValidateApiKeyCommand}"
+                                                    Padding="20,8"/>
+                                        </Grid>
 
-                                <TextBlock Text="{Binding StatusMessage}"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           FontSize="12"
-                                           Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding StatusMessage}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
-                        </Border>
+                        </ScrollViewer>
+                    </TabItem>
 
-                        <!-- Steam Path Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Steam Configuration"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
+                    <!-- Steam & Downloads Sub-Tab -->
+                    <TabItem Header="Steam &amp; Downloads">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
 
-                                <TextBlock Text="Steam Installation Path"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,5"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                <!-- Steam Configuration -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Steam Configuration"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
 
-                                    <TextBox Grid.Column="0"
-                                             Text="{Binding SteamPath, UpdateSourceTrigger=PropertyChanged}"
-                                             IsReadOnly="True"
-                                             Margin="0,0,10,0"/>
-                                    <Button Grid.Column="1"
-                                            Content="Browse"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Command="{Binding BrowseSteamPathCommand}"
-                                            Padding="20,8"
-                                            Margin="0,0,10,0"/>
-                                    <Button Grid.Column="2"
-                                            Content="Auto-Detect"
-                                            Command="{Binding DetectSteamCommand}"
-                                            Padding="20,8"/>
-                                </Grid>
+                                        <TextBlock Text="Steam Installation Path"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding SteamPath, UpdateSourceTrigger=PropertyChanged}"
+                                                     IsReadOnly="True"
+                                                     Margin="0,0,10,0"/>
+                                            <Button Grid.Column="1"
+                                                    Content="Browse"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding BrowseSteamPathCommand}"
+                                                    Padding="20,8"
+                                                    Margin="0,0,10,0"/>
+                                            <Button Grid.Column="2"
+                                                    Content="Auto-Detect"
+                                                    Command="{Binding DetectSteamCommand}"
+                                                    Padding="20,8"/>
+                                        </Grid>
+
+                                        <TextBlock Text="Tool Mode"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <RadioButton Content="SteamTools"
+                                                        IsChecked="{Binding IsSteamToolsMode}"
+                                                        Foreground="{DynamicResource TextPrimaryBrush}"
+                                                        FontSize="14"
+                                                        Margin="0,0,30,0"
+                                                        ToolTip="Standard mode for downloading and installing games"/>
+                                            <RadioButton Content="GreenLuma"
+                                                        IsChecked="{Binding IsGreenLumaMode}"
+                                                        Foreground="{DynamicResource TextPrimaryBrush}"
+                                                        FontSize="14"
+                                                        Margin="0,0,30,0"
+                                                        ToolTip="Advanced mode with depot control and language selection for GreenLuma"/>
+                                            <RadioButton Content="DepotDownloader"
+                                                        IsChecked="{Binding IsDepotDownloaderMode}"
+                                                        Foreground="{DynamicResource TextPrimaryBrush}"
+                                                        FontSize="14"
+                                                        ToolTip="Download actual game files using DepotDownloader with smart filtering"/>
+                                        </StackPanel>
+
+                                        <TextBlock Text="• SteamTools: Standard download mode"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="• GreenLuma: Advanced depot control with language selection"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="• DepotDownloader: Download actual game files with smart language/platform filtering"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Downloads -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Downloads"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Downloads Folder"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding DownloadsPath, UpdateSourceTrigger=PropertyChanged}"
+                                                     IsReadOnly="True"
+                                                     Margin="0,0,10,0"/>
+                                            <Button Grid.Column="1"
+                                                    Content="Browse"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    Command="{Binding BrowseDownloadsPathCommand}"
+                                                    Padding="20,8"/>
+                                        </Grid>
+
+                                        <CheckBox Content="Auto-install after download completes"
+                                                  IsChecked="{Binding AutoInstallAfterDownload}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  ToolTip="Automatically install games after they finish downloading"/>
+                                    </StackPanel>
+                                </Border>
+
                             </StackPanel>
-                        </Border>
+                        </ScrollViewer>
+                    </TabItem>
 
-                        <!-- Tool Mode Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Tool Mode"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
+                    <!-- Application Behavior Sub-Tab -->
+                    <TabItem Header="Application Behavior">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Application Behavior"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Select the mode for game downloads and depot management"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,10"/>
+                                        <CheckBox Content="Minimize to system tray"
+                                                  IsChecked="{Binding MinimizeToTray}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="0,0,0,10"
+                                                  ToolTip="When clicking the X button, hide to system tray instead of closing the app"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <RadioButton Content="SteamTools"
-                                                IsChecked="{Binding IsSteamToolsMode}"
-                                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                                FontSize="14"
-                                                Margin="0,0,30,0"
-                                                ToolTip="Standard mode for downloading and installing games"/>
-                                    <RadioButton Content="GreenLuma"
-                                                IsChecked="{Binding IsGreenLumaMode}"
-                                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                                FontSize="14"
-                                                ToolTip="Advanced mode with depot control and language selection for GreenLuma"/>
-                                </StackPanel>
+                                        <CheckBox Content="Start minimized to tray"
+                                                  IsChecked="{Binding StartMinimized}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="0,0,0,10"
+                                                  ToolTip="Start the application minimized to system tray on launch"/>
 
-                                <TextBlock Text="• SteamTools: Standard download mode"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           Margin="0,0,0,3"/>
-                                <TextBlock Text="• GreenLuma: Advanced depot control with language selection"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"/>
+                                        <CheckBox Content="Show notifications"
+                                                  IsChecked="{Binding ShowNotifications}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="0,0,0,10"
+                                                  ToolTip="Show Windows toast notifications (when OFF, uses traditional message boxes)"/>
+
+                                        <CheckBox Content="Confirm before deleting files"
+                                                  IsChecked="{Binding ConfirmBeforeDelete}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="0,0,0,10"
+                                                  ToolTip="Show confirmation dialog before deleting downloaded files"/>
+
+                                        <CheckBox Content="Confirm before uninstalling games"
+                                                  IsChecked="{Binding ConfirmBeforeUninstall}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  ToolTip="Show confirmation dialog before uninstalling games"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
-                        </Border>
+                        </ScrollViewer>
+                    </TabItem>
 
-                        <!-- Downloads Path Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Downloads"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <TextBlock Text="Downloads Folder"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,5"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBox Grid.Column="0"
-                                             Text="{Binding DownloadsPath, UpdateSourceTrigger=PropertyChanged}"
-                                             IsReadOnly="True"
-                                             Margin="0,0,10,0"/>
-                                    <Button Grid.Column="1"
-                                            Content="Browse"
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Command="{Binding BrowseDownloadsPathCommand}"
-                                            Padding="20,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Application Settings Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Application Settings"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <CheckBox Content="Minimize to system tray"
-                                          IsChecked="{Binding MinimizeToTray}"
-                                          Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"
-                                          ToolTip="When clicking the X button, hide to system tray instead of closing the app"/>
-
-                                <CheckBox Content="Auto-install after download completes"
-                                          IsChecked="{Binding AutoInstallAfterDownload}"
-                                          Foreground="{DynamicResource TextPrimaryBrush}"
-                                          Margin="0,0,0,10"
-                                          ToolTip="Automatically install games after they finish downloading"/>
-
-                                <CheckBox Content="Show notifications"
-                                          IsChecked="{Binding ShowNotifications}"
-                                          Foreground="{DynamicResource TextPrimaryBrush}"
-                                          ToolTip="Show Windows toast notifications (when OFF, uses traditional message boxes)"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Theme Section -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Theme"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <TextBlock Text="Choose your preferred color theme"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,10"/>
-
-                                <ComboBox SelectedValue="{Binding SelectedThemeName}"
-                                          SelectedValuePath="Tag"
-                                          FontSize="14"
-                                          Padding="10,8"
-                                          Margin="0,0,0,10">
-                                    <ComboBoxItem Content="Default (Steam)" Tag="Default"/>
-                                    <ComboBoxItem Content="True Dark Mode" Tag="Dark"/>
-                                    <ComboBoxItem Content="Light Mode" Tag="Light"/>
-                                    <ComboBoxItem Content="Cherry" Tag="Cherry"/>
-                                    <ComboBoxItem Content="Sunset" Tag="Sunset"/>
-                                    <ComboBoxItem Content="Forest" Tag="Forest"/>
-                                    <ComboBoxItem Content="Grape" Tag="Grape"/>
-                                    <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
-                                </ComboBox>
-
-                                <TextBlock Text="Theme will be applied when you save settings"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="11"
-                                           FontStyle="Italic"/>
-                            </StackPanel>
-                        </Border>
-
-
-                    </StackPanel>
-                </ScrollViewer>
+                </TabControl>
             </TabItem>
 
-            <!-- GreenLuma Settings Tab -->
-            <TabItem Header="GreenLuma Settings" Visibility="{Binding IsGreenLumaMode, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+            <!-- Display & Interface Tab with Sub-Tabs -->
+            <TabItem Header="Display &amp; Interface">
+                <TabControl Background="Transparent" BorderThickness="0" Margin="10">
+
+                    <!-- Theme & Appearance Sub-Tab -->
+                    <TabItem Header="Theme &amp; Appearance">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Theme &amp; Appearance"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Color Theme"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <ComboBox SelectedValue="{Binding SelectedThemeName}"
+                                                  SelectedValuePath="Tag"
+                                                  FontSize="14"
+                                                  Padding="10,8"
+                                                  Margin="0,0,0,15">
+                                            <ComboBoxItem Content="Default (Steam)" Tag="Default"/>
+                                            <ComboBoxItem Content="True Dark Mode" Tag="Dark"/>
+                                            <ComboBoxItem Content="Light Mode" Tag="Light"/>
+                                            <ComboBoxItem Content="Cherry" Tag="Cherry"/>
+                                            <ComboBoxItem Content="Sunset" Tag="Sunset"/>
+                                            <ComboBoxItem Content="Forest" Tag="Forest"/>
+                                            <ComboBoxItem Content="Grape" Tag="Grape"/>
+                                            <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                                        </ComboBox>
+
+                                        <TextBlock Text="Store Page Size (games per page)"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <ComboBox SelectedValue="{Binding StorePageSize}"
+                                                  SelectedValuePath="Tag"
+                                                  FontSize="14"
+                                                  Padding="10,8"
+                                                  Margin="0,0,0,10">
+                                            <ComboBoxItem Content="10 games" Tag="10"/>
+                                            <ComboBoxItem Content="20 games (default)" Tag="20"/>
+                                            <ComboBoxItem Content="30 games" Tag="30"/>
+                                            <ComboBoxItem Content="50 games" Tag="50"/>
+                                            <ComboBoxItem Content="100 games" Tag="100"/>
+                                        </ComboBox>
+
+                                        <TextBlock Text="Theme changes will be applied when you save settings"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="11"
+                                                   FontStyle="Italic"
+                                                   Margin="0,10,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Window Settings Sub-Tab -->
+                    <TabItem Header="Window Settings">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Window Settings"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Window Dimensions"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Width:" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox Grid.Column="1" Text="{Binding WindowWidth, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="Height:" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            <TextBox Grid.Column="4" Text="{Binding WindowHeight, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <CheckBox Content="Remember window position on close"
+                                                  IsChecked="{Binding RememberWindowPosition}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="0,0,0,5"
+                                                  ToolTip="Save and restore window position when the app starts"/>
+
+                                        <TextBlock Text="Window size and position changes will be applied when you save settings"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="11"
+                                                   FontStyle="Italic"
+                                                   Margin="0,10,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                </TabControl>
+            </TabItem>
+
+            <!-- Advanced Tools Tab with Sub-Tabs -->
+            <TabItem Header="Advanced Tools">
+                <TabControl Background="Transparent" BorderThickness="0" Margin="10">
+
+                    <!-- GreenLuma Sub-Tab -->
+                    <TabItem Header="GreenLuma" Visibility="{Binding IsGreenLumaMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
 
                         <!-- GreenLuma Mode Selection -->
                         <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
@@ -434,145 +545,11 @@
                             </StackPanel>
                         </Border>
 
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- Auto-Update Tab -->
-            <TabItem Header="Auto-Update">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
-
-                        <!-- Update Mode Selection -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Update Mode"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <TextBlock Text="Choose how the app handles updates"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,10"/>
-
-                                <ComboBox SelectedValue="{Binding SelectedAutoUpdateMode}"
-                                          SelectedValuePath="Tag"
-                                          FontSize="14"
-                                          Padding="10,8"
-                                          Margin="0,0,0,15">
-                                    <ComboBoxItem Content="Disabled" Tag="Disabled"/>
-                                    <ComboBoxItem Content="Check Only (Notify me)" Tag="CheckOnly"/>
-                                    <ComboBoxItem Content="Auto Download &amp; Install" Tag="AutoDownloadAndInstall"/>
-                                </ComboBox>
-
-                                <TextBlock Text="• Disabled: Never check for updates"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           Margin="0,0,0,3"/>
-                                <TextBlock Text="• Check Only: Notify when updates are available and ask permission to install"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           Margin="0,0,0,3"/>
-                                <TextBlock Text="• Auto Download &amp; Install: Automatically download and install updates without asking"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"/>
                             </StackPanel>
-                        </Border>
+                        </ScrollViewer>
+                    </TabItem>
 
-                        <!-- Update Information -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Update Information"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <TextBlock Text="Current Version: 1.0.0"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,10"/>
-
-                                <TextBlock TextWrapping="Wrap"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           Margin="0,0,0,15">
-                                    Updates are downloaded from the GitHub releases page.<LineBreak/>
-                                    The app automatically detects your build variant (single-file, full, or compressed) and downloads the matching update.
-                                </TextBlock>
-
-                                <Button Content="Check for Updates Now"
-                                        Command="{Binding CheckForUpdatesCommand}"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Padding="20,10"
-                                        HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- Maintenance Tab -->
-            <TabItem Header="Maintenance">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
-
-                        <!-- Cache Management -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Cache Management"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <TextBlock Text="{Binding GetCacheSizeFormatted(), StringFormat='Current cache size: {0}'}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,10"/>
-
-                                <Button Content="Clear Cache"
-                                        Command="{Binding ClearCacheCommand}"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Padding="20,10"
-                                        HorizontalAlignment="Left"/>
-
-                                <TextBlock Text="Clears all cached game icons and API data"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           FontStyle="Italic"
-                                           Margin="0,10,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Logs Management -->
-                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Logs Management"
-                                           FontSize="20"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           Margin="0,0,0,15"/>
-
-                                <Button Content="Clear Old Logs"
-                                        Command="{Binding ClearLogsCommand}"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Padding="20,10"
-                                        HorizontalAlignment="Left"
-                                        Margin="0,0,0,10"/>
-
-                                <TextBlock Text="Deletes all old log files (except current session)"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           FontSize="12"
-                                           FontStyle="Italic"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- SteamAuth Pro Tab -->
+                    <!-- SteamAuth Pro Sub-Tab -->
             <TabItem Header="SteamAuth Pro">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
@@ -729,6 +706,270 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
+            <!-- DepotDownloader Tab -->
+            <TabItem Header="DepotDownloader" Visibility="{Binding IsDepotDownloaderMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                        <!-- Output Configuration -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Download Configuration"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Output Folder"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding DepotDownloaderOutputPath, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="True"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Browse"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding BrowseDepotOutputPathCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+
+                                <TextBlock Text="Steam Username (optional - leave blank for anonymous)"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SteamUsername, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,0,15"/>
+
+                                <CheckBox Content="Verify files after download"
+                                          IsChecked="{Binding VerifyFilesAfterDownload}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,10"
+                                          ToolTip="Verify downloaded files against manifest checksums"/>
+
+                                <TextBlock Text="Max Concurrent Downloads"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <ComboBox SelectedValue="{Binding MaxConcurrentDownloads}"
+                                          SelectedValuePath="Tag"
+                                          FontSize="14"
+                                          Padding="10,8"
+                                          Margin="0,0,0,10">
+                                    <ComboBoxItem Content="4 connections" Tag="4"/>
+                                    <ComboBoxItem Content="8 connections (default)" Tag="8"/>
+                                    <ComboBoxItem Content="16 connections" Tag="16"/>
+                                    <ComboBoxItem Content="32 connections" Tag="32"/>
+                                </ComboBox>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic"
+                                           Margin="0,10,0,0">
+                                    DepotDownloader will download actual game files from Steam CDN servers.<LineBreak/>
+                                    Downloads will be filtered by language and platform using smart filtering logic.<LineBreak/>
+                                    Anonymous login works for most games, but some may require Steam credentials.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Filtering Information -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Smart Filtering"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="When you drop a manifest ZIP file, the app will:"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,10"/>
+
+                                <TextBlock Text="✓ Show available languages from SteamCMD API"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="13"
+                                           Margin="10,0,0,3"/>
+                                <TextBlock Text="✓ Filter out macOS/Linux-only depots (Windows only)"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="13"
+                                           Margin="10,0,0,3"/>
+                                <TextBlock Text="✓ Exclude low-violence versions automatically"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="13"
+                                           Margin="10,0,0,3"/>
+                                <TextBlock Text="✓ Include base game + selected language depots"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="13"
+                                           Margin="10,0,0,3"/>
+                                <TextBlock Text="✓ Handle DLC and shared depots intelligently"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="13"
+                                           Margin="10,0,0,10"/>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic">
+                                    Filtering logic is based on the Python bot's depot_downloader_commands.py implementation.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+                </TabControl>
+            </TabItem>
+
+            <!-- System Tab with Sub-Tabs -->
+            <TabItem Header="System">
+                <TabControl Background="Transparent" BorderThickness="0" Margin="10">
+
+                    <!-- Auto-Update Sub-Tab -->
+                    <TabItem Header="Auto-Update">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                                <!-- Update Mode Selection -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Update Mode"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Choose how the app handles updates"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,10"/>
+
+                                        <ComboBox SelectedValue="{Binding SelectedAutoUpdateMode}"
+                                                  SelectedValuePath="Tag"
+                                                  FontSize="14"
+                                                  Padding="10,8"
+                                                  Margin="0,0,0,15">
+                                            <ComboBoxItem Content="Disabled" Tag="Disabled"/>
+                                            <ComboBoxItem Content="Check Only (Notify me)" Tag="CheckOnly"/>
+                                            <ComboBoxItem Content="Auto Download &amp; Install" Tag="AutoDownloadAndInstall"/>
+                                        </ComboBox>
+
+                                        <TextBlock Text="• Disabled: Never check for updates"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="• Check Only: Notify when updates are available and ask permission to install"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,3"/>
+                                        <TextBlock Text="• Auto Download &amp; Install: Automatically download and install updates without asking"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Update Information -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Update Information"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="Current Version: 1.0.0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,10"/>
+
+                                        <TextBlock TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,15">
+                                            Updates are downloaded from the GitHub releases page.<LineBreak/>
+                                            The app automatically detects your build variant (single-file, full, or compressed) and downloads the matching update.
+                                        </TextBlock>
+
+                                        <Button Content="Check for Updates Now"
+                                                Command="{Binding CheckForUpdatesCommand}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Padding="20,10"
+                                                HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- Maintenance Sub-Tab -->
+                    <TabItem Header="Maintenance">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
+
+                                <!-- Cache Management -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Cache Management"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <TextBlock Text="{Binding GetCacheSizeFormatted(), StringFormat='Current cache size: {0}'}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,10"/>
+
+                                        <Button Content="Clear Cache"
+                                                Command="{Binding ClearCacheCommand}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Padding="20,10"
+                                                HorizontalAlignment="Left"/>
+
+                                        <TextBlock Text="Clears all cached game icons and API data"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   FontStyle="Italic"
+                                                   Margin="0,10,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Logs Management -->
+                                <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Logs Management"
+                                                   FontSize="20"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Margin="0,0,0,15"/>
+
+                                        <Button Content="Clear Old Logs"
+                                                Command="{Binding ClearLogsCommand}"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                Padding="20,10"
+                                                HorizontalAlignment="Left"
+                                                Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Deletes all old log files (except current session)"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   FontStyle="Italic"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                </TabControl>
+            </TabItem>
+
         </TabControl>
 
         <!-- Fixed Save Button at Bottom -->

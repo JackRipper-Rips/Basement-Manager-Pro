@@ -56,7 +56,7 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private bool _canGoPrevious;
 
-        private const int PageSize = 20;
+        private int PageSize => _settingsService.LoadSettings().StorePageSize;
 
         public StoreViewModel(
             ManifestApiService manifestApiService,

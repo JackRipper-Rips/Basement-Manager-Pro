@@ -56,6 +56,27 @@ namespace SolusManifestApp.ViewModels
         private bool _showNotifications;
 
         [ObservableProperty]
+        private bool _startMinimized;
+
+        [ObservableProperty]
+        private bool _confirmBeforeDelete;
+
+        [ObservableProperty]
+        private bool _confirmBeforeUninstall;
+
+        [ObservableProperty]
+        private int _storePageSize;
+
+        [ObservableProperty]
+        private bool _rememberWindowPosition;
+
+        [ObservableProperty]
+        private double _windowLeft;
+
+        [ObservableProperty]
+        private double _windowTop;
+
+        [ObservableProperty]
         private string _statusMessage = "Ready";
 
         [ObservableProperty]
@@ -72,6 +93,9 @@ namespace SolusManifestApp.ViewModels
 
         [ObservableProperty]
         private bool _isGreenLumaMode;
+
+        [ObservableProperty]
+        private bool _isDepotDownloaderMode;
 
         [ObservableProperty]
         private bool _isGreenLumaNormalMode;
@@ -130,6 +154,19 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private string _combinedKeysPath = string.Empty;
 
+        // DepotDownloader properties
+        [ObservableProperty]
+        private string _depotDownloaderOutputPath = string.Empty;
+
+        [ObservableProperty]
+        private string _steamUsername = string.Empty;
+
+        [ObservableProperty]
+        private bool _verifyFilesAfterDownload;
+
+        [ObservableProperty]
+        private int _maxConcurrentDownloads;
+
         public bool ShowAdvancedNormalModeSettings => IsGreenLumaNormalMode && IsAdvancedNormalMode;
 
         // Mark as unsaved when properties change
@@ -141,6 +178,13 @@ namespace SolusManifestApp.ViewModels
         partial void OnMinimizeToTrayChanged(bool value) => MarkAsUnsaved();
         partial void OnAutoInstallAfterDownloadChanged(bool value) => MarkAsUnsaved();
         partial void OnShowNotificationsChanged(bool value) => MarkAsUnsaved();
+        partial void OnStartMinimizedChanged(bool value) => MarkAsUnsaved();
+        partial void OnConfirmBeforeDeleteChanged(bool value) => MarkAsUnsaved();
+        partial void OnConfirmBeforeUninstallChanged(bool value) => MarkAsUnsaved();
+        partial void OnStorePageSizeChanged(int value) => MarkAsUnsaved();
+        partial void OnRememberWindowPositionChanged(bool value) => MarkAsUnsaved();
+        partial void OnWindowLeftChanged(double value) => MarkAsUnsaved();
+        partial void OnWindowTopChanged(double value) => MarkAsUnsaved();
         partial void OnSelectedThemeNameChanged(string value) => MarkAsUnsaved();
         partial void OnUseDefaultInstallLocationChanged(bool value) => MarkAsUnsaved();
         partial void OnSelectedLibraryFolderChanged(string value) => MarkAsUnsaved();
@@ -150,6 +194,10 @@ namespace SolusManifestApp.ViewModels
         partial void OnSteamAuthProActiveAccountIndexChanged(int value) => MarkAsUnsaved();
         partial void OnConfigVdfPathChanged(string value) => MarkAsUnsaved();
         partial void OnCombinedKeysPathChanged(string value) => MarkAsUnsaved();
+        partial void OnDepotDownloaderOutputPathChanged(string value) => MarkAsUnsaved();
+        partial void OnSteamUsernameChanged(string value) => MarkAsUnsaved();
+        partial void OnVerifyFilesAfterDownloadChanged(bool value) => MarkAsUnsaved();
+        partial void OnMaxConcurrentDownloadsChanged(int value) => MarkAsUnsaved();
 
         private void MarkAsUnsaved()
         {
@@ -164,6 +212,7 @@ namespace SolusManifestApp.ViewModels
             if (value)
             {
                 IsGreenLumaMode = false;
+                IsDepotDownloaderMode = false;
                 Settings.Mode = ToolMode.SteamTools;
             }
             MarkAsUnsaved();
@@ -174,7 +223,19 @@ namespace SolusManifestApp.ViewModels
             if (value)
             {
                 IsSteamToolsMode = false;
+                IsDepotDownloaderMode = false;
                 Settings.Mode = ToolMode.GreenLuma;
+            }
+            MarkAsUnsaved();
+        }
+
+        partial void OnIsDepotDownloaderModeChanged(bool value)
+        {
+            if (value)
+            {
+                IsSteamToolsMode = false;
+                IsGreenLumaMode = false;
+                Settings.Mode = ToolMode.DepotDownloader;
             }
             MarkAsUnsaved();
         }
@@ -288,6 +349,13 @@ namespace SolusManifestApp.ViewModels
             MinimizeToTray = Settings.MinimizeToTray;
             AutoInstallAfterDownload = Settings.AutoInstallAfterDownload;
             ShowNotifications = Settings.ShowNotifications;
+            StartMinimized = Settings.StartMinimized;
+            ConfirmBeforeDelete = Settings.ConfirmBeforeDelete;
+            ConfirmBeforeUninstall = Settings.ConfirmBeforeUninstall;
+            StorePageSize = Settings.StorePageSize;
+            RememberWindowPosition = Settings.RememberWindowPosition;
+            WindowLeft = Settings.WindowLeft;
+            WindowTop = Settings.WindowTop;
             ApiKeyHistory = new ObservableCollection<string>(Settings.ApiKeyHistory);
             AppListPath = Settings.AppListPath;
             UseDefaultInstallLocation = Settings.UseDefaultInstallLocation;
@@ -306,6 +374,7 @@ namespace SolusManifestApp.ViewModels
             // Set mode radio buttons
             IsSteamToolsMode = Settings.Mode == ToolMode.SteamTools;
             IsGreenLumaMode = Settings.Mode == ToolMode.GreenLuma;
+            IsDepotDownloaderMode = Settings.Mode == ToolMode.DepotDownloader;
 
             // Set GreenLuma sub-mode radio buttons
             IsGreenLumaNormalMode = Settings.GreenLumaSubMode == GreenLumaMode.Normal;
@@ -357,6 +426,12 @@ namespace SolusManifestApp.ViewModels
             ConfigVdfPath = Settings.ConfigVdfPath;
             CombinedKeysPath = Settings.CombinedKeysPath;
 
+            // Load DepotDownloader settings
+            DepotDownloaderOutputPath = Settings.DepotDownloaderOutputPath;
+            SteamUsername = Settings.SteamUsername;
+            VerifyFilesAfterDownload = Settings.VerifyFilesAfterDownload;
+            MaxConcurrentDownloads = Settings.MaxConcurrentDownloads;
+
             _isLoading = false;
             HasUnsavedChanges = false; // Clear unsaved changes flag after load
 
@@ -380,6 +455,13 @@ namespace SolusManifestApp.ViewModels
             Settings.MinimizeToTray = MinimizeToTray;
             Settings.AutoInstallAfterDownload = AutoInstallAfterDownload;
             Settings.ShowNotifications = ShowNotifications;
+            Settings.StartMinimized = StartMinimized;
+            Settings.ConfirmBeforeDelete = ConfirmBeforeDelete;
+            Settings.ConfirmBeforeUninstall = ConfirmBeforeUninstall;
+            Settings.StorePageSize = StorePageSize;
+            Settings.RememberWindowPosition = RememberWindowPosition;
+            Settings.WindowLeft = WindowLeft;
+            Settings.WindowTop = WindowTop;
             Settings.AppListPath = AppListPath;
             Settings.DLLInjectorPath = DllInjectorPath;
             Settings.UseDefaultInstallLocation = UseDefaultInstallLocation;
@@ -399,6 +481,12 @@ namespace SolusManifestApp.ViewModels
             // Save Config VDF Extractor settings
             Settings.ConfigVdfPath = ConfigVdfPath;
             Settings.CombinedKeysPath = CombinedKeysPath;
+
+            // Save DepotDownloader settings
+            Settings.DepotDownloaderOutputPath = DepotDownloaderOutputPath;
+            Settings.SteamUsername = SteamUsername;
+            Settings.VerifyFilesAfterDownload = VerifyFilesAfterDownload;
+            Settings.MaxConcurrentDownloads = MaxConcurrentDownloads;
 
             try
             {
@@ -862,6 +950,22 @@ namespace SolusManifestApp.ViewModels
             if (openFileDialog.ShowDialog() == true)
             {
                 CombinedKeysPath = openFileDialog.FileName;
+            }
+        }
+
+        [RelayCommand]
+        private void BrowseDepotOutputPath()
+        {
+            var dialog = new OpenFolderDialog
+            {
+                Title = "Select DepotDownloader Output Folder"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                DepotDownloaderOutputPath = dialog.FolderName;
+                Directory.CreateDirectory(DepotDownloaderOutputPath);
+                StatusMessage = "DepotDownloader output path updated";
             }
         }
 

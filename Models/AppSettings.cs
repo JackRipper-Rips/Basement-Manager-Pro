@@ -5,7 +5,8 @@ namespace SolusManifestApp.Models
     public enum ToolMode
     {
         SteamTools,
-        GreenLuma
+        GreenLuma,
+        DepotDownloader
     }
 
     public enum GreenLumaMode
@@ -36,25 +37,53 @@ namespace SolusManifestApp.Models
 
     public class AppSettings
     {
-        public string SteamPath { get; set; } = string.Empty;
+        // API & Authentication
         public string ApiKey { get; set; } = string.Empty;
+        public List<string> ApiKeyHistory { get; set; } = new List<string>();
+
+        // Steam Configuration
+        public string SteamPath { get; set; } = string.Empty;
+        public ToolMode Mode { get; set; } = ToolMode.SteamTools;
+
+        // Downloads & Installation
         public string DownloadsPath { get; set; } = string.Empty;
+        public bool AutoInstallAfterDownload { get; set; } = false;
+
+        // Application Behavior
+        public bool MinimizeToTray { get; set; } = true;
+        public bool StartMinimized { get; set; } = false;
+        public bool ShowNotifications { get; set; } = true;
+        public bool ConfirmBeforeDelete { get; set; } = true;
+        public bool ConfirmBeforeUninstall { get; set; } = true;
+
+        // Display & Interface
+        public AppTheme Theme { get; set; } = AppTheme.Default;
+        public double WindowWidth { get; set; } = 1400;
+        public double WindowHeight { get; set; } = 850;
+        public int StorePageSize { get; set; } = 20;
+        public bool RememberWindowPosition { get; set; } = true;
+        public double WindowLeft { get; set; } = double.NaN;
+        public double WindowTop { get; set; } = double.NaN;
+
+        // Auto-Update
         public bool AutoCheckUpdates { get; set; } = true; // Legacy - kept for compatibility
         public AutoUpdateMode AutoUpdate { get; set; } = AutoUpdateMode.CheckOnly;
-        public bool MinimizeToTray { get; set; } = true;
-        public bool AutoInstallAfterDownload { get; set; } = false;
-        public bool ShowNotifications { get; set; } = true;
-        public List<string> ApiKeyHistory { get; set; } = new List<string>();
-        public ToolMode Mode { get; set; } = ToolMode.SteamTools;
+
+        // GreenLuma Configuration
         public GreenLumaMode GreenLumaSubMode { get; set; } = GreenLumaMode.Normal;
         public string AppListPath { get; set; } = string.Empty;
         public string DLLInjectorPath { get; set; } = string.Empty;
         public bool UseDefaultInstallLocation { get; set; } = true;
         public string SelectedLibraryFolder { get; set; } = string.Empty;
-        public AppTheme Theme { get; set; } = AppTheme.Default;
-        public double WindowWidth { get; set; } = 1400;
-        public double WindowHeight { get; set; } = 850;
+
+        // Config VDF Extractor
         public string ConfigVdfPath { get; set; } = string.Empty;
         public string CombinedKeysPath { get; set; } = string.Empty;
+
+        // DepotDownloader Configuration
+        public string DepotDownloaderOutputPath { get; set; } = string.Empty;
+        public string SteamUsername { get; set; } = string.Empty;
+        public bool VerifyFilesAfterDownload { get; set; } = true;
+        public int MaxConcurrentDownloads { get; set; } = 8;
     }
 }
