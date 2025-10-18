@@ -1,17 +1,19 @@
-name: Build
+name: Build and Release
 
+# Only run on version tags (e.g., v1.0.0) - not on every commit
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        type: string
 
 env:
   DOTNET_VERSION: '8.0.x'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -19,7 +21,6 @@ jobs:
     permissions:
       contents: write
       packages: write
-      pull-requests: write
 
     steps:
     - name: Checkout code
@@ -40,6 +41,17 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
+    - name: Get version from tag or input
+      id: version
+      run: |
+        if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+          $version = "${{ github.event.inputs.version }}"
+        } else {
+          $version = "${{ github.ref_name }}"
+        }
+        echo "tag=$version" >> $env:GITHUB_OUTPUT
+        echo "Release version: $version"
+
     - name: Restore dependencies
       run: dotnet restore
 
@@ -48,92 +60,76 @@ jobs:
 
     - name: Test build output
       run: |
-        if (Test-Path "./bin/Release/net8.0-windows10.0.19041.0/SolusManifestApp.exe") {
+        if (Test-Path "./bin/Release/net8.0-windows10.0.19041.0/win-x64/SolusManifestApp.exe") {
           Write-Host "✅ Build successful - SolusManifestApp.exe created"
         } else {
           Write-Host "❌ Build failed - executable not found"
           exit 1
         }
 
-    - name: Generate version tag
-      if: github.event_name == 'push'
-      id: version
+    - name: Publish Self-Contained Single-File
+      run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./publish
+
+    - name: Copy depots.ini to publish folder
       run: |
-        $date = Get-Date -Format "yyyy.MM.dd"
-        $count = git rev-list --count HEAD
-        $version = "v$date.$count"
-        echo "tag=$version" >> $env:GITHUB_OUTPUT
-        echo "Generated version: $version"
-
-    - name: Publish Full Self-Contained
-      if: github.event_name == 'push'
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./publish/full
-
-    - name: Publish Single-File Framework-Dependent
-      if: github.event_name == 'push'
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained false -p:PublishSingleFile=true --output ./publish/singlefile
-
-    - name: Publish Compressed Self-Contained
-      if: github.event_name == 'push'
-      run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./publish/compressed
+        if (Test-Path "./depots.ini") {
+          Copy-Item -Path "./depots.ini" -Destination "./publish/depots.ini"
+          Write-Host "✅ Copied depots.ini to publish folder"
+        } else {
+          Write-Host "⚠️ depots.ini not found - skipping"
+        }
 
     - name: Remove PDB files
-      if: github.event_name == 'push'
       run: |
-        Remove-Item -Path ./publish/full/*.pdb -ErrorAction SilentlyContinue
-        Remove-Item -Path ./publish/singlefile/*.pdb -ErrorAction SilentlyContinue
-        Remove-Item -Path ./publish/compressed/*.pdb -ErrorAction SilentlyContinue
-
-    - name: Create Release Archives
-      if: github.event_name == 'push'
-      run: |
-        cd publish/full
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-full.zip SolusManifestApp.exe
-        cd ../singlefile
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-singlefile.zip SolusManifestApp.exe
-        cd ../compressed
-        7z a ../../SolusManifestApp-${{ steps.version.outputs.tag }}-compressed.zip SolusManifestApp.exe
+        Remove-Item -Path ./publish/*.pdb -ErrorAction SilentlyContinue
+        Write-Host "✅ Removed PDB files"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
-      if: github.event_name == 'push' && success()
       with:
         name: SolusManifestApp-${{ steps.version.outputs.tag }}
-        path: |
-          SolusManifestApp-*.zip
-        retention-days: 30
+        path: ./publish/*
+        retention-days: 90
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
-      if: github.event_name == 'push' && success()
       with:
         tag_name: ${{ steps.version.outputs.tag }}
-        name: Release ${{ steps.version.outputs.tag }}
+        name: Solus Manifest App ${{ steps.version.outputs.tag }}
         prerelease: false
         generate_release_notes: true
         files: |
-          SolusManifestApp-${{ steps.version.outputs.tag }}-full.zip
-          SolusManifestApp-${{ steps.version.outputs.tag }}-singlefile.zip
-          SolusManifestApp-${{ steps.version.outputs.tag }}-compressed.zip
+          publish/SolusManifestApp.exe
+          publish/depots.ini
         body: |
-          ## Release ${{ steps.version.outputs.tag }}
+          ## Solus Manifest App ${{ steps.version.outputs.tag }}
 
-          **Build Date:** ${{ github.event.head_commit.timestamp }}
-          **Commit:** ${{ github.sha }}
+          ### 📥 Download
 
-          ### Downloads
+          Download `SolusManifestApp.exe` and `depots.ini` - no installation needed!
 
-          All builds are single .exe files. Choose the version that fits your needs:
+          ### ✨ Features
 
-          - **Full Self-Contained** (`-full.zip`): Everything included, no .NET runtime needed (~80MB)
-          - **Single-File** (`-singlefile.zip`): Requires .NET 8.0 runtime (~65MB)
-          - **Compressed Self-Contained** (`-compressed.zip`): Everything included with compression, no .NET runtime needed (~70MB)
+          - **Self-contained**: No .NET runtime installation required
+          - **Single executable**: Everything embedded in one file
+          - **Auto-updates**: Automatically checks for new versions
+          - **Includes depot database**: `depots.ini` contains depot name mappings
 
-          ### Installation
-          1. Download the zip file for your preferred variant
-          2. Extract to a folder
+          ### 🚀 Quick Start
+
+          1. Download both files:
+             - `SolusManifestApp.exe` (main application)
+             - `depots.ini` (depot database)
+          2. Place them in the same folder
           3. Run `SolusManifestApp.exe`
 
-          **Note:** For `-deps` and `-minimal` variants, install [.NET 8.0 Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) first.
+          ### 📝 Notes
+
+          - Windows may show SmartScreen warning - click "More info" → "Run anyway"
+          - Requires Windows 10 version 1903 or later
+
+          ### 🔄 Auto-Update
+
+          The app will automatically check for updates and can download/install them for you.
       env:
         GITHUB_TOKEN: ${{ github.token }}

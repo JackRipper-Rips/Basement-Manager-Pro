@@ -100,51 +100,66 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                // Get current exe size to match the closest variant
-                var currentExePath = Process.GetCurrentProcess().MainModule?.FileName;
-                var currentExeSize = !string.IsNullOrEmpty(currentExePath) && File.Exists(currentExePath)
-                    ? new FileInfo(currentExePath).Length
-                    : 0;
+                // Find the SolusManifestApp.exe asset (no longer zipped)
+                var exeAsset = updateInfo.Assets
+                    .FirstOrDefault(a => a.Name.Equals("SolusManifestApp.exe", StringComparison.OrdinalIgnoreCase));
 
-                // Find all SolusManifestApp zip variants
-                var zipAssets = updateInfo.Assets
-                    .Where(a => a.Name.StartsWith("SolusManifestApp-", StringComparison.OrdinalIgnoreCase)
-                             && a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                if (zipAssets.Count == 0)
+                if (exeAsset == null)
                 {
+                    // Fallback: try to find any zip file for backward compatibility
+                    var zipAsset = updateInfo.Assets
+                        .FirstOrDefault(a => a.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase));
+
+                    if (zipAsset != null)
+                    {
+                        return await DownloadUpdateFromZipAsync(zipAsset, progress);
+                    }
+
                     return null;
                 }
 
-                // Pick the variant with size closest to current exe
-                // singlefile.zip ≈ 9MB (framework-dependent)
-                // full.zip ≈ 70MB (self-contained)
-                // compressed.zip ≈ 72MB (self-contained compressed)
-                UpdateAsset? selectedAsset;
+                var tempExePath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.exe");
 
-                if (currentExeSize < 20_000_000) // Less than 20MB = singlefile
+                // Download EXE directly
+                using (var response = await _httpClient.GetAsync(exeAsset.BrowserDownloadUrl, HttpCompletionOption.ResponseHeadersRead))
                 {
-                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
-                }
-                else if (currentExeSize < 71_000_000) // 20-71MB = full
-                {
-                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-full.zip", StringComparison.OrdinalIgnoreCase));
-                }
-                else // Over 71MB = compressed
-                {
-                    selectedAsset = zipAssets.FirstOrDefault(a => a.Name.Contains("-compressed.zip", StringComparison.OrdinalIgnoreCase));
+                    response.EnsureSuccessStatusCode();
+
+                    var totalBytes = response.Content.Headers.ContentLength ?? 0;
+                    var downloadedBytes = 0L;
+
+                    using var fileStream = new FileStream(tempExePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+
+                    var buffer = new byte[8192];
+                    int bytesRead;
+
+                    while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                        downloadedBytes += bytesRead;
+
+                        if (totalBytes > 0 && progress != null)
+                        {
+                            var progressPercent = (double)downloadedBytes / totalBytes * 100;
+                            progress.Report(progressPercent);
+                        }
+                    }
                 }
 
-                // Fallback to singlefile if specific variant not found
-                var zipAsset = selectedAsset ?? zipAssets.FirstOrDefault(a => a.Name.Contains("-singlefile.zip", StringComparison.OrdinalIgnoreCase));
+                return tempExePath;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-                if (zipAsset == null)
-                {
-                    // Ultimate fallback - just pick the first zip
-                    zipAsset = zipAssets.First();
-                }
-
+        // Fallback method for backward compatibility with old zip releases
+        private async Task<string?> DownloadUpdateFromZipAsync(UpdateAsset zipAsset, IProgress<double>? progress = null)
+        {
+            try
+            {
                 var tempZipPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.zip");
                 var tempExtractPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update_Extract");
 
@@ -182,7 +197,7 @@ namespace SolusManifestApp.Services
                 }
                 Directory.CreateDirectory(tempExtractPath);
 
-                System.IO.Compression.ZipFile.ExtractToDirectory(tempZipPath, tempExtractPath);
+                ZipFile.ExtractToDirectory(tempZipPath, tempExtractPath);
 
                 // Find the exe in extracted files
                 var exePath = Directory.GetFiles(tempExtractPath, "SolusManifestApp.exe", SearchOption.AllDirectories).FirstOrDefault();
