@@ -84,13 +84,6 @@ jobs:
         Remove-Item -Path ./publish/*.pdb -ErrorAction SilentlyContinue
         Write-Host "✅ Removed PDB files"
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: SolusManifestApp-${{ steps.version.outputs.tag }}
-        path: ./publish/*
-        retention-days: 90
-
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
