@@ -41,6 +41,7 @@ namespace SolusManifestApp.Models
         // API & Authentication
         public string ApiKey { get; set; } = string.Empty;
         public List<string> ApiKeyHistory { get; set; } = new List<string>();
+        public string SteamWebApiKey { get; set; } = string.Empty;
 
         // Steam Configuration
         public string SteamPath { get; set; } = string.Empty;

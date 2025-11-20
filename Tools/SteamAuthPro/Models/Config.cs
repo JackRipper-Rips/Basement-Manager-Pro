@@ -5,6 +5,12 @@ using Newtonsoft.Json;
 
 namespace SolusManifestApp.Tools.SteamAuthPro.Models
 {
+    public enum TicketDumpMethod
+    {
+        GetETicket,
+        OpenSteamtools
+    }
+
     public class Account
     {
         public string Name { get; set; } = string.Empty;
@@ -23,6 +29,7 @@ namespace SolusManifestApp.Tools.SteamAuthPro.Models
         public string PhpSessionId { get; set; } = string.Empty;
         public List<Account> Accounts { get; set; } = new();
         public int? ActiveAccount { get; set; }
+        public TicketDumpMethod TicketMethod { get; set; } = TicketDumpMethod.GetETicket;
 
         public string CurrentPhpSessionId => PhpSessionId;
 

@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using SolusManifestApp.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace SolusManifestApp.Services
@@ -275,7 +276,7 @@ namespace SolusManifestApp.Services
                 if (string.IsNullOrEmpty(lastScanned))
                     return false;
 
-                var lastScannedDate = DateTime.Parse(lastScanned);
+                var lastScannedDate = DateTime.Parse(lastScanned, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                 return DateTime.Now - lastScannedDate < maxAge;
             }
             catch
@@ -304,6 +305,26 @@ namespace SolusManifestApp.Services
 
         private LibraryItem MapToLibraryItem(SqliteDataReader reader)
         {
+            // Helper to safely parse DateTime with culture-invariant format
+            DateTime? SafeParseDateTime(string columnName)
+            {
+                if (reader.IsDBNull(reader.GetOrdinal(columnName)))
+                    return null;
+
+                var dateStr = reader.GetString(reader.GetOrdinal(columnName));
+                if (string.IsNullOrWhiteSpace(dateStr))
+                    return null;
+
+                if (DateTime.TryParse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var result))
+                    return result;
+
+                // Fallback for old data that might not be in ISO format
+                if (DateTime.TryParse(dateStr, out var fallbackResult))
+                    return fallbackResult;
+
+                return null;
+            }
+
             return new LibraryItem
             {
                 AppId = reader.GetString(reader.GetOrdinal("AppId")),
@@ -312,8 +333,8 @@ namespace SolusManifestApp.Services
                 Version = reader.IsDBNull(reader.GetOrdinal("Version")) ? "" : reader.GetString(reader.GetOrdinal("Version")),
                 ItemType = (LibraryItemType)reader.GetInt32(reader.GetOrdinal("ItemType")),
                 SizeBytes = reader.GetInt64(reader.GetOrdinal("SizeBytes")),
-                InstallDate = reader.IsDBNull(reader.GetOrdinal("InstallDate")) ? null : DateTime.Parse(reader.GetString(reader.GetOrdinal("InstallDate"))),
-                LastUpdated = reader.IsDBNull(reader.GetOrdinal("LastUpdated")) ? null : DateTime.Parse(reader.GetString(reader.GetOrdinal("LastUpdated"))),
+                InstallDate = SafeParseDateTime("InstallDate"),
+                LastUpdated = SafeParseDateTime("LastUpdated"),
                 LocalPath = reader.IsDBNull(reader.GetOrdinal("LocalPath")) ? "" : reader.GetString(reader.GetOrdinal("LocalPath")),
                 CachedIconPath = reader.IsDBNull(reader.GetOrdinal("CachedIconPath")) ? null : reader.GetString(reader.GetOrdinal("CachedIconPath")),
                 IconUrl = reader.IsDBNull(reader.GetOrdinal("IconUrl")) ? "" : reader.GetString(reader.GetOrdinal("IconUrl"))
@@ -360,8 +381,17 @@ namespace SolusManifestApp.Services
                 while (reader.Read())
                 {
                     var lastAccessedStr = reader.GetString(reader.GetOrdinal("LastAccessed"));
-                    if (!string.IsNullOrEmpty(lastAccessedStr) && DateTime.TryParse(lastAccessedStr, out var lastAccessed))
+                    if (!string.IsNullOrEmpty(lastAccessedStr))
                     {
+                        DateTime lastAccessed;
+                        // Try culture-invariant first (ISO 8601)
+                        if (!DateTime.TryParse(lastAccessedStr, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out lastAccessed))
+                        {
+                            // Fallback to current culture for old data
+                            if (!DateTime.TryParse(lastAccessedStr, out lastAccessed))
+                                continue; // Skip invalid dates
+                        }
+
                         recentGames.Add(new RecentGameInfo
                         {
                             AppId = reader.GetString(reader.GetOrdinal("AppId")),

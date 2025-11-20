@@ -102,6 +102,28 @@
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           Margin="0,15,0,0"
                                           ToolTip="Extracts depot keys from your Steam config.vdf and uploads only new keys that don't already exist on the server. Runs automatically every hour while the app is open. Requires a valid API key."/>
+
+                                <!-- Steam Web API Key -->
+                                <Rectangle Fill="{DynamicResource BorderBrush}" Height="1" Margin="0,20,0,20"/>
+                                <TextBlock Text="Steam Web API Key (Optional)"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding SteamWebApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,0,5"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="11"
+                                           Margin="0,0,0,0">
+                                    <Run Text="Used to fetch the complete Steam app list for better game name resolution."/>
+                                    <LineBreak/>
+                                    <Run Text="Get your key at: "/>
+                                    <Hyperlink NavigateUri="https://steamcommunity.com/dev/apikey"
+                                               RequestNavigate="Hyperlink_RequestNavigate">
+                                        <Run Text="https://steamcommunity.com/dev/apikey"/>
+                                    </Hyperlink>
+                                    <LineBreak/>
+                                    <Run Text="If not provided, game names will be fetched from manifest cache and other sources."/>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -670,11 +692,32 @@
                                         <TextBlock TextWrapping="Wrap"
                                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                                    FontSize="12"
-                                                   FontStyle="Italic">
+                                                   FontStyle="Italic"
+                                                   Margin="0,0,0,15">
                                             To get PHPSESSID:<LineBreak/>
                                             1. Open browser DevTools (F12)<LineBreak/>
                                             2. Go to https://drm.steam.run<LineBreak/>
                                             3. Check Application → Cookies → PHPSESSID
+                                        </TextBlock>
+
+                                        <TextBlock Text="Ticket Dump Method"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   Margin="0,0,0,5"/>
+                                        <ComboBox SelectedValue="{Binding SteamAuthProTicketMethod}"
+                                                  SelectedValuePath="Tag"
+                                                  FontSize="14"
+                                                  Padding="10,8"
+                                                  Margin="0,0,0,10">
+                                            <ComboBoxItem Content="Steamtools" Tag="GetETicket"/>
+                                            <ComboBoxItem Content="OpenSteamtools" Tag="OpenSteamtools"/>
+                                        </ComboBox>
+
+                                        <TextBlock TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   FontSize="12"
+                                                   FontStyle="Italic">
+                                            Steamtools: Uses steam://run/tool/geteticket/{appid}<LineBreak/>
+                                            OpenSteamtools: Uses steam://openstools/dumpticket_steamtools/{appid}
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>

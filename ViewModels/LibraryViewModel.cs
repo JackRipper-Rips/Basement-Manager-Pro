@@ -113,7 +113,10 @@ namespace SolusManifestApp.ViewModels
             var stpluginPath = _steamService.GetStPluginPath() ?? "";
             _luaFileManager = new LuaFileManager(stpluginPath);
             _archiveExtractor = new ArchiveExtractionService();
-            _steamApiService = new SteamApiService(_cacheService);
+
+            // Load Steam Web API key from settings
+            var settings = _settingsService.LoadSettings();
+            _steamApiService = new SteamApiService(_cacheService, settings.SteamWebApiKey);
 
             // Subscribe to library refresh events
             _refreshService.GameInstalled += OnGameInstalled;
@@ -1326,6 +1329,53 @@ namespace SolusManifestApp.ViewModels
             catch (Exception ex)
             {
                 _notificationService.ShowError($"Failed to enable auto-updates: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task UpdateSteamAppCache()
+        {
+            try
+            {
+                // Check if API key is set
+                var settings = _settingsService.LoadSettings();
+                if (string.IsNullOrWhiteSpace(settings.SteamWebApiKey))
+                {
+                    _notificationService.ShowWarning("Steam Web API Key is not set. Please add it in Settings to use this feature.");
+                    return;
+                }
+
+                IsLoading = true;
+                StatusMessage = "Updating Steam app list cache...";
+
+                _logger.Info("Starting Steam app list cache update");
+
+                // Update the API key in the service (in case it changed)
+                _steamApiService.SetSteamWebApiKey(settings.SteamWebApiKey);
+
+                // Force refresh the app list from API
+                var result = await _steamApiService.GetAppListAsync(forceRefresh: true);
+
+                if (result != null && result.AppList?.Apps.Count > 0)
+                {
+                    _logger.Info($"Successfully updated cache with {result.AppList.Apps.Count} apps");
+                    _notificationService.ShowSuccess($"Steam app list cache updated! Loaded {result.AppList.Apps.Count:N0} apps.");
+                }
+                else
+                {
+                    _logger.Warning("Cache update returned empty result");
+                    _notificationService.ShowWarning("Cache update completed but no apps were retrieved. Check your API key.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to update Steam app cache: {ex.Message}");
+                _notificationService.ShowError($"Failed to update cache: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+                StatusMessage = $"{_allItems.Count} item(s) loaded";
             }
         }
     }

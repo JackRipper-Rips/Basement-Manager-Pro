@@ -365,10 +365,10 @@ namespace SolusManifestApp.ViewModels
 
                         StatusMessage = $"Found {filteredDepotIds.Count} depots for {languageDialog.SelectedLanguage}. Preparing depot selection...";
 
-                        // Load depot names from depots.ini for friendly display
-                        var depotNameService = new DepotNameService();
-                        var depotIniPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "depots.ini");
-                        depotNameService.LoadDepotNames(depotIniPath);
+                        // Parse depot names from lua content for friendly display
+                        var luaParser = new LuaParser();
+                        var luaDepots = luaParser.ParseDepotsFromLua(luaContent, appId);
+                        var depotNameMap = luaDepots.ToDictionary(d => d.DepotId, d => d.Name);
 
                         // Convert filtered depot IDs to depot info list for selection dialog
                         var depotsForSelection = new List<DepotInfo>();
@@ -376,8 +376,8 @@ namespace SolusManifestApp.ViewModels
                         {
                             if (uint.TryParse(depotIdStr, out var depotId) && parsedDepotKeys.ContainsKey(depotIdStr))
                             {
-                                // Get friendly depot name from depots.ini, or fallback to generic name
-                                string depotName = depotNameService.GetDepotName(depotIdStr);
+                                // Get friendly depot name from lua, or fallback to generic name
+                                string depotName = depotNameMap.TryGetValue(depotIdStr, out var name) ? name : $"Depot {depotIdStr}";
                                 string depotLanguage = "";
                                 long depotSize = 0;
 

@@ -45,10 +45,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
 
-    <None Update="depots.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </None>
     <Resource Include="icon.ico" />
     <EmbeddedResource Include="icon.ico" />
   </ItemGroup>

@@ -38,6 +38,9 @@ namespace SolusManifestApp.ViewModels
         private string _apiKey = string.Empty;
 
         [ObservableProperty]
+        private string _steamWebApiKey = string.Empty;
+
+        [ObservableProperty]
         private string _downloadsPath = string.Empty;
 
         [ObservableProperty]
@@ -150,6 +153,9 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private string _steamAuthProPhpSessionId = string.Empty;
 
+        [ObservableProperty]
+        private string _steamAuthProTicketMethod = "GetETicket";
+
         private Config _steamAuthProConfig = null!;
 
         // Config VDF Extractor properties
@@ -199,6 +205,7 @@ namespace SolusManifestApp.ViewModels
         partial void OnSteamAuthProApiUrlChanged(string value) => MarkAsUnsaved();
         partial void OnSteamAuthProPhpSessionIdChanged(string value) => MarkAsUnsaved();
         partial void OnSteamAuthProActiveAccountIndexChanged(int value) => MarkAsUnsaved();
+        partial void OnSteamAuthProTicketMethodChanged(string value) => MarkAsUnsaved();
         partial void OnConfigVdfPathChanged(string value) => MarkAsUnsaved();
         partial void OnCombinedKeysPathChanged(string value) => MarkAsUnsaved();
         partial void OnDepotDownloaderOutputPathChanged(string value) => MarkAsUnsaved();
@@ -350,6 +357,7 @@ namespace SolusManifestApp.ViewModels
 
             SteamPath = Settings.SteamPath;
             ApiKey = Settings.ApiKey;
+            SteamWebApiKey = Settings.SteamWebApiKey;
             DownloadsPath = Settings.DownloadsPath;
             AutoCheckUpdates = Settings.AutoCheckUpdates;
             SelectedAutoUpdateMode = Settings.AutoUpdate.ToString();
@@ -429,6 +437,7 @@ namespace SolusManifestApp.ViewModels
             _steamAuthProConfig = Config.Load();
             SteamAuthProApiUrl = _steamAuthProConfig.ApiUrl;
             SteamAuthProPhpSessionId = _steamAuthProConfig.PhpSessionId;
+            SteamAuthProTicketMethod = _steamAuthProConfig.TicketMethod.ToString();
             LoadSteamAuthProAccounts();
 
             // Load Config VDF Extractor settings
@@ -452,6 +461,7 @@ namespace SolusManifestApp.ViewModels
         {
             Settings.SteamPath = SteamPath;
             Settings.ApiKey = ApiKey;
+            Settings.SteamWebApiKey = SteamWebApiKey;
             Settings.DownloadsPath = DownloadsPath;
             Settings.AutoCheckUpdates = AutoCheckUpdates;
 
@@ -487,6 +497,10 @@ namespace SolusManifestApp.ViewModels
             // Save SteamAuth Pro settings
             _steamAuthProConfig.ApiUrl = SteamAuthProApiUrl;
             _steamAuthProConfig.PhpSessionId = SteamAuthProPhpSessionId;
+            if (Enum.TryParse<TicketDumpMethod>(SteamAuthProTicketMethod, out var ticketMethod))
+            {
+                _steamAuthProConfig.TicketMethod = ticketMethod;
+            }
             _steamAuthProConfig.Save();
 
             // Save Config VDF Extractor settings

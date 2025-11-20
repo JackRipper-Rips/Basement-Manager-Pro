@@ -23,16 +23,6 @@ namespace SolusManifestApp.Tools.SteamAuthPro
             InitializeControls();
         }
 
-        public void OpenSettings()
-        {
-            var settingsWindow = new SettingsWindow(_config) { Owner = Window.GetWindow(this) };
-            if (settingsWindow.ShowDialog() == true)
-            {
-                PopulateAccountComboBox();
-                UpdateStatus("Settings saved successfully");
-            }
-        }
-
         private void LoadConfig()
         {
             _config = Config.Load();
@@ -224,7 +214,9 @@ namespace SolusManifestApp.Tools.SteamAuthPro
 
                 // Trigger Steam ticket generation
                 UpdateStatus("Triggering Steam ticket generation...");
-                var steamUrl = $"steam://run/tool/geteticket/{appId}";
+                var steamUrl = _config.TicketMethod == TicketDumpMethod.OpenSteamtools
+                    ? $"steam://openstools/dumpticket_steamtools/{appId}"
+                    : $"steam://run/tool/geteticket/{appId}";
                 Process.Start(new ProcessStartInfo(steamUrl) { UseShellExecute = true });
 
                 UpdateStatus("Waiting for Steam to process...");

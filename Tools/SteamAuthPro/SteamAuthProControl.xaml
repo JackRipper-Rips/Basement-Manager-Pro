@@ -1,59 +1,58 @@
 <UserControl x:Class="SolusManifestApp.Tools.SteamAuthPro.SteamAuthProControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Border BorderBrush="{DynamicResource SteamMediumBrush}"
+    <Border BorderBrush="{DynamicResource AccentBrush}"
             BorderThickness="1"
             CornerRadius="8"
-            Background="{DynamicResource SteamDarkBrush}"
+            Background="{DynamicResource SecondaryDarkBrush}"
             Margin="20">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="20" MaxWidth="700" HorizontalAlignment="Left">
                 <!-- Active Account -->
-                <GroupBox Header="Active Account" Margin="0,0,0,5" Style="{DynamicResource SteamGroupBoxStyle}">
+                <GroupBox Header="Active Account" Margin="0,0,0,5">
                     <Grid Margin="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Account:" Grid.Column="0" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource SteamTextBrush}" Margin="0,0,10,0"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,10,0"/>
                         <ComboBox x:Name="AccountComboBox" Grid.Column="1"
-                                  Style="{DynamicResource SteamComboBoxStyle}"
-                                  SelectionChanged="AccountComboBox_SelectionChanged"/>
+                                  SelectionChanged="AccountComboBox_SelectionChanged"
+                                  MinWidth="300"/>
                     </Grid>
                 </GroupBox>
 
                 <!-- App ID -->
-                <GroupBox Header="App ID" Margin="0,0,0,5" Style="{DynamicResource SteamGroupBoxStyle}">
+                <GroupBox Header="App ID" Margin="0,0,0,5">
                     <Grid Margin="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Enter Steam App ID:" Grid.Column="0" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource SteamTextBrush}" Margin="0,0,10,0"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,10,0"/>
                         <TextBox x:Name="AppIdTextBox" Grid.Column="1"
-                                 Style="{DynamicResource SteamTextBoxStyle}"
-                                 Margin="0,0,10,0"/>
+                                 Margin="0,0,10,0"
+                                 MinWidth="200"/>
                         <Button Content="🔍 Search Game" Grid.Column="2"
-                                Style="{DynamicResource SteamButtonStyle}"
                                 Click="SearchGameButton_Click"/>
                     </Grid>
                 </GroupBox>
 
                 <!-- Usage Limit -->
-                <GroupBox Header="Usage Limit" Margin="0,0,0,5" Style="{DynamicResource SteamGroupBoxStyle}">
+                <GroupBox Header="Usage Limit" Margin="0,0,0,5">
                     <Grid Margin="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Select usage limit:" Grid.Column="0" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource SteamTextBrush}" Margin="0,0,10,0"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,10,0"/>
                         <ComboBox x:Name="UsageLimitComboBox" Grid.Column="1"
-                                  Style="{DynamicResource SteamComboBoxStyle}"
-                                  SelectedIndex="0"/>
+                                  SelectedIndex="0"
+                                  MinWidth="150"/>
                     </Grid>
                 </GroupBox>
 
@@ -62,23 +61,22 @@
                         Content="Generate Auth Code"
                         Height="40"
                         FontSize="13"
-                        Style="{DynamicResource SteamButtonStyle}"
                         Click="GenerateButton_Click"
                         Margin="0,0,0,5"/>
 
                 <!-- Result -->
-                <GroupBox Header="Result" Style="{DynamicResource SteamGroupBoxStyle}">
+                <GroupBox Header="Result">
                     <StackPanel Margin="5">
                         <TextBlock x:Name="StatusLabel" Text="Ready"
                                    HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource SteamTextBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,5"/>
 
                         <TextBlock x:Name="AuthCodeDisplay"
                                    FontSize="20"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource SteamLightBrush}"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    MinHeight="30"
                                    Margin="0,0,0,5"/>
 
@@ -87,7 +85,6 @@
                                  TextWrapping="Wrap"
                                  MinHeight="90"
                                  MaxHeight="110"
-                                 Style="{DynamicResource SteamTextBoxStyle}"
                                  VerticalScrollBarVisibility="Auto"/>
                     </StackPanel>
                 </GroupBox>
