@@ -7,10 +7,10 @@ Download now: https://github.com/MorrenusGames/Solus-Manifest-App/releases/lates
 ## ✨ Key Features
 
 **📦 Depot & Manifest Management**
-• Browse & download Steam depots with automatic key lookup
-• Download specific game manifests and versions
+• Browse & download Steam depots with auto key lookup
+• Download game manifests and versions
 • Built-in DepotDownloader with progress tracking
-• DepotDumper integration with 2FA & QR code support
+• DepotDumper integration with 2FA & QR support
 
 **🔧 Advanced Tools**
 • **SteamAuth Pro** - Generate encrypted tickets
@@ -27,30 +27,30 @@ Download now: https://github.com/MorrenusGames/Solus-Manifest-App/releases/lates
 
 **🎨 Premium Experience**
 • **8 Themes**: Default, Dark, Light, Cherry, Sunset, Forest, Grape, Cyberpunk
-• Auto-updates & system tray support
-• Toast notifications
-• Modern Steam-inspired interface
+• Auto-updates & system tray
+• Toast notifications & modern UI
 
 **💾 Smart Features**
-• Backup/Restore system for your library
+• Backup/Restore system
 • Offline mode with caching
 • Statistics dashboard
-• API key manager with history
+• API key manager
 • Customizable paths
 
 ## 🚀 Quick Start
 1. Download `SolusManifestApp.exe`
 2. Run it (no install needed!)
-3. Enter API key in Settings
-4. Start managing games!
+3. Enter API key & start!
 
-**Requirements:** Windows 10 (v1903+) | ~200MB space | Internet
+**Requirements:** Windows 10 (v1903+) | ~200MB
 
 ## ⚠️ AI Disclaimer
-This app was built with AI assistance (Claude Code). If you have a problem with that, don't use the app. Simple as that.
+Built with AI (Claude Code). Don't like it? Don't use it.
 
 ## 🙏 Credits
-Thanks to **Melly** & the **Lua Tools** Discord community! Special thanks to **NicknineTheEagle** (DepotDumper) & **SteamRE** (DepotDownloader).
+Thanks to **Melly** & **Lua Tools** Discord! Special thanks to:
+• [**NicknineTheEagle**](https://github.com/NicknineTheEagle/DepotDumper) - DepotDumper
+• [**SteamRE**](https://github.com/SteamRE/DepotDownloader) - DepotDownloader
 
 Made with ❤️ for the Steam community
-🔗 Website: https://manifest.morrenus.xyz | Discord: https://discord.gg/morrenusgames
+🔗 [Website](https://manifest.morrenus.xyz) • [Discord](https://discord.gg/morrenusgames) • [GitHub](https://github.com/MorrenusGames/Solus-Manifest-App)
