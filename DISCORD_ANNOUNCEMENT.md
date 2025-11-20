@@ -27,9 +27,8 @@ Download now: https://github.com/MorrenusGames/Solus-Manifest-App/releases/lates
 
 **🎨 Premium Experience**
 • **8 Themes**: Default, Dark, Light, Cherry, Sunset, Forest, Grape, Cyberpunk
-• Auto-updates with one-click installation
-• System tray support with minimize-to-tray
-• Toast notifications for all operations
+• Auto-updates & system tray support
+• Toast notifications
 • Modern Steam-inspired interface
 
 **💾 Smart Features**
@@ -40,15 +39,18 @@ Download now: https://github.com/MorrenusGames/Solus-Manifest-App/releases/lates
 • Customizable paths
 
 ## 🚀 Quick Start
-1. Download `SolusManifestApp.exe` from releases
-2. Run the app (no installation needed!)
-3. Enter your API key in Settings
-4. Start downloading & managing games!
+1. Download `SolusManifestApp.exe`
+2. Run it (no install needed!)
+3. Enter API key in Settings
+4. Start managing games!
 
 **Requirements:** Windows 10 (v1903+) | ~200MB space | Internet
 
+## ⚠️ AI Disclaimer
+This app was built with AI assistance (Claude Code). If you have a problem with that, don't use the app. Simple as that.
+
 ## 🙏 Credits
-Huge thanks to **Melly** and the **Lua Tools** Discord community for the inspiration and support! Special thanks to **NicknineTheEagle** for DepotDumper integration.
+Huge thanks to **Melly** & the **Lua Tools** Discord community! Special thanks to **NicknineTheEagle** for DepotDumper.
 
 Made with ❤️ for the Steam community
 🔗 Website: https://manifest.morrenus.xyz | Discord: https://discord.gg/morrenusgames
