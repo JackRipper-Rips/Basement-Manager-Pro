@@ -1,0 +1,73 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build Release
+        run: dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Solus Manifest App ${{ github.ref_name }}
+          body: |
+            ## 🎮 Solus Manifest App ${{ github.ref_name }}
+
+            **Download the executable below and run it - no installation required!**
+
+            ### What's New
+            See the commit history for detailed changes.
+
+            ### Installation
+            1. Download `SolusManifestApp.exe`
+            2. Run the executable
+            3. Enter your API key in Settings
+            4. Start managing your Steam depots!
+
+            ### Requirements
+            - Windows 10 version 1903 or later
+            - ~200MB disk space
+            - Internet connection
+
+            ---
+
+            **Full changelog**: https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/SolusManifestApp.exe
+          asset_name: SolusManifestApp.exe
+          asset_content_type: application/octet-stream
