@@ -56,7 +56,7 @@
             <!-- Generate Button -->
             <Button Content="🔑 GENERATE TOKEN"
                     Command="{Binding GenerateTokenCommand}"
-                    Style="{StaticResource PrimaryButtonStyle}"
+                    Style="{StaticResource ModernButtonStyle}"
                     FontWeight="Bold"
                     FontSize="14"
                     Padding="20,12"

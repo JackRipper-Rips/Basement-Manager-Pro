@@ -82,14 +82,18 @@ namespace SolusManifestApp.Services.GBE
 
         private async Task<(bool Success, string? Ticket, ulong SteamId)> GenerateTicketAsync(string settingsPath)
         {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string libDirectory = Path.Combine(baseDirectory, "lib", "gbe");
+            string tempLibDir = Path.Combine(Path.GetTempPath(), "GBE_Temp_" + Path.GetRandomFileName());
+            Directory.CreateDirectory(tempLibDir);
 
             try
             {
-                if (!SteamApi.SetDllDirectory(libDirectory))
+                // Extract DLLs from embedded resources to temp directory
+                ExtractEmbeddedResource("SolusManifestApp.lib.gbe.steam_api64.dll", Path.Combine(tempLibDir, "steam_api64.dll"));
+                ExtractEmbeddedResource("SolusManifestApp.lib.gbe.dependencies.steamclient64.dll", Path.Combine(tempLibDir, "steamclient64.dll"));
+
+                if (!SteamApi.SetDllDirectory(tempLibDir))
                 {
-                    _log("Failed to set DLL search directory to 'lib/gbe'.", true);
+                    _log("Failed to set DLL search directory.", true);
                     return (false, null, 0);
                 }
 
@@ -132,6 +136,16 @@ namespace SolusManifestApp.Services.GBE
             finally
             {
                 SteamApi.SetDllDirectory(null);
+
+                // Clean up temp directory
+                try
+                {
+                    if (Directory.Exists(tempLibDir))
+                    {
+                        Directory.Delete(tempLibDir, true);
+                    }
+                }
+                catch { }
             }
             return (false, null, 0);
         }
@@ -322,11 +336,14 @@ namespace SolusManifestApp.Services.GBE
 
         private void ExtractAndCopyDependencies(string stagingRoot, string settingsPath)
         {
+            // Extract DLL dependencies from embedded resources
             ExtractEmbeddedResource("SolusManifestApp.Resources.GBE.dependencies.steam_api64.dll", Path.Combine(stagingRoot, "steam_api64.dll"));
-            _log("✓ Copied steam_api64.dll", false);
-            ExtractEmbeddedResource("SolusManifestApp.Resources.GBE.dependencies.steamclient64.dll", Path.Combine(stagingRoot, "steamclient64.dll"));
-            _log("✓ Copied steamclient64.dll", false);
+            _log("✓ Extracted steam_api64.dll", false);
 
+            ExtractEmbeddedResource("SolusManifestApp.Resources.GBE.dependencies.steamclient64.dll", Path.Combine(stagingRoot, "steamclient64.dll"));
+            _log("✓ Extracted steamclient64.dll", false);
+
+            // Extract sound files from embedded resources
             try
             {
                 string destSoundsDir = Path.Combine(settingsPath, "sounds");
@@ -338,17 +355,10 @@ namespace SolusManifestApp.Services.GBE
                 var soundResourceNames = assembly.GetManifestResourceNames()
                                                 .Where(r => r.StartsWith(soundResourcePrefix) && r.EndsWith(".wav"));
 
-                if (!soundResourceNames.Any())
-                {
-                    _log("No embedded sound files found. Skipping.", false);
-                    return;
-                }
-
                 foreach (var resourceName in soundResourceNames)
                 {
                     string fileName = resourceName.Substring(soundResourcePrefix.Length);
                     string destFilePath = Path.Combine(destSoundsDir, fileName);
-
                     ExtractEmbeddedResource(resourceName, destFilePath);
                 }
 
@@ -357,6 +367,20 @@ namespace SolusManifestApp.Services.GBE
             catch (Exception ex)
             {
                 _log($"Could not extract sound files: {ex.Message}", true);
+            }
+        }
+
+        private static void ExtractEmbeddedResource(string resourceName, string outputPath)
+        {
+            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                if (resourceStream == null)
+                    throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
+
+                using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
+                {
+                    resourceStream.CopyTo(fileStream);
+                }
             }
         }
 
@@ -377,18 +401,5 @@ namespace SolusManifestApp.Services.GBE
             }
         }
 
-        private static void ExtractEmbeddedResource(string resourceName, string outputPath)
-        {
-            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
-            {
-                if (resourceStream == null)
-                    throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
-
-                using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write))
-                {
-                    resourceStream.CopyTo(fileStream);
-                }
-            }
-        }
     }
 }
