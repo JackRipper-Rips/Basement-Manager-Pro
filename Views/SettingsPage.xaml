@@ -527,16 +527,7 @@
                             </StackPanel>
                         </Border>
 
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
-            <!-- TAB 5: GBE Token Generator -->
-            <TabItem Header="GBE Token Generator">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
-
-                        <!-- GBE Configuration -->
+                        <!-- GBE Token Generator Configuration -->
                         <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
                             <StackPanel>
                                 <TextBlock Text="GBE Token Generator"
@@ -596,7 +587,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <!-- TAB 6: Steam & Downloads -->
+            <!-- TAB 5: Steam & Downloads -->
             <TabItem Header="Steam &amp; Downloads">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
