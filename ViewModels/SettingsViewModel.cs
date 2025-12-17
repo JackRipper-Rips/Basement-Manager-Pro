@@ -4,8 +4,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using SolusManifestApp.Models;
 using SolusManifestApp.Services;
-using SolusManifestApp.Tools.SteamAuthPro.Models;
-using SolusManifestApp.Tools.SteamAuthPro.Views;
+// SteamAuth Pro - Site taken down, temporarily disabled
+// using SolusManifestApp.Tools.SteamAuthPro.Models;
+// using SolusManifestApp.Tools.SteamAuthPro.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -150,23 +151,23 @@ namespace SolusManifestApp.ViewModels
 
         private bool _isLoading; // Flag to prevent marking as unsaved during load
 
-        // SteamAuth Pro properties
-        [ObservableProperty]
-        private ObservableCollection<string> _steamAuthProAccounts = new();
+        // SteamAuth Pro properties - Site taken down, temporarily disabled
+        // [ObservableProperty]
+        // private ObservableCollection<string> _steamAuthProAccounts = new();
 
-        [ObservableProperty]
-        private int _steamAuthProActiveAccountIndex = -1;
+        // [ObservableProperty]
+        // private int _steamAuthProActiveAccountIndex = -1;
 
-        [ObservableProperty]
-        private string _steamAuthProApiUrl = "https://drm.steam.run/ticket/create";
+        // [ObservableProperty]
+        // private string _steamAuthProApiUrl = "https://drm.steam.run/ticket/create";
 
-        [ObservableProperty]
-        private string _steamAuthProPhpSessionId = string.Empty;
+        // [ObservableProperty]
+        // private string _steamAuthProPhpSessionId = string.Empty;
 
-        [ObservableProperty]
-        private string _steamAuthProTicketMethod = "GetETicket";
+        // [ObservableProperty]
+        // private string _steamAuthProTicketMethod = "GetETicket";
 
-        private Config _steamAuthProConfig = null!;
+        // private Config _steamAuthProConfig = null!;
 
         // Config VDF Extractor properties
         [ObservableProperty]
@@ -225,10 +226,10 @@ namespace SolusManifestApp.ViewModels
         partial void OnUseDefaultInstallLocationChanged(bool value) => MarkAsUnsaved();
         partial void OnSelectedLibraryFolderChanged(string value) => MarkAsUnsaved();
         partial void OnDllInjectorPathChanged(string value) => MarkAsUnsaved();
-        partial void OnSteamAuthProApiUrlChanged(string value) => MarkAsUnsaved();
-        partial void OnSteamAuthProPhpSessionIdChanged(string value) => MarkAsUnsaved();
-        partial void OnSteamAuthProActiveAccountIndexChanged(int value) => MarkAsUnsaved();
-        partial void OnSteamAuthProTicketMethodChanged(string value) => MarkAsUnsaved();
+        // partial void OnSteamAuthProApiUrlChanged(string value) => MarkAsUnsaved();
+        // partial void OnSteamAuthProPhpSessionIdChanged(string value) => MarkAsUnsaved();
+        // partial void OnSteamAuthProActiveAccountIndexChanged(int value) => MarkAsUnsaved();
+        // partial void OnSteamAuthProTicketMethodChanged(string value) => MarkAsUnsaved();
         partial void OnConfigVdfPathChanged(string value) => MarkAsUnsaved();
         partial void OnCombinedKeysPathChanged(string value) => MarkAsUnsaved();
         partial void OnDepotDownloaderOutputPathChanged(string value) => MarkAsUnsaved();
@@ -461,12 +462,12 @@ namespace SolusManifestApp.ViewModels
                 DllInjectorPath = Settings.DLLInjectorPath;
             }
 
-            // Load SteamAuth Pro settings
-            _steamAuthProConfig = Config.Load();
-            SteamAuthProApiUrl = _steamAuthProConfig.ApiUrl;
-            SteamAuthProPhpSessionId = _steamAuthProConfig.PhpSessionId;
-            SteamAuthProTicketMethod = _steamAuthProConfig.TicketMethod.ToString();
-            LoadSteamAuthProAccounts();
+            // Load SteamAuth Pro settings - Site taken down, temporarily disabled
+            // _steamAuthProConfig = Config.Load();
+            // SteamAuthProApiUrl = _steamAuthProConfig.ApiUrl;
+            // SteamAuthProPhpSessionId = _steamAuthProConfig.PhpSessionId;
+            // SteamAuthProTicketMethod = _steamAuthProConfig.TicketMethod.ToString();
+            // LoadSteamAuthProAccounts();
 
             // Load Config VDF Extractor settings
             ConfigVdfPath = Settings.ConfigVdfPath;
@@ -529,14 +530,14 @@ namespace SolusManifestApp.ViewModels
                 Settings.Theme = theme;
             }
 
-            // Save SteamAuth Pro settings
-            _steamAuthProConfig.ApiUrl = SteamAuthProApiUrl;
-            _steamAuthProConfig.PhpSessionId = SteamAuthProPhpSessionId;
-            if (Enum.TryParse<TicketDumpMethod>(SteamAuthProTicketMethod, out var ticketMethod))
-            {
-                _steamAuthProConfig.TicketMethod = ticketMethod;
-            }
-            _steamAuthProConfig.Save();
+            // Save SteamAuth Pro settings - Site taken down, temporarily disabled
+            // _steamAuthProConfig.ApiUrl = SteamAuthProApiUrl;
+            // _steamAuthProConfig.PhpSessionId = SteamAuthProPhpSessionId;
+            // if (Enum.TryParse<TicketDumpMethod>(SteamAuthProTicketMethod, out var ticketMethod))
+            // {
+            //     _steamAuthProConfig.TicketMethod = ticketMethod;
+            // }
+            // _steamAuthProConfig.Save();
 
             // Save Config VDF Extractor settings
             Settings.ConfigVdfPath = ConfigVdfPath;
@@ -873,113 +874,114 @@ namespace SolusManifestApp.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void SteamAuthProAutoDetect()
-        {
-            var steamAccounts = SteamAccountManager.GetSteamAccounts();
+        // SteamAuth Pro methods - Site taken down, temporarily disabled
+        // [RelayCommand]
+        // private void SteamAuthProAutoDetect()
+        // {
+        //     var steamAccounts = SteamAccountManager.GetSteamAccounts();
 
-            if (steamAccounts.Count == 0)
-            {
-                MessageBoxHelper.Show("No Steam accounts detected. Make sure Steam is installed and you have logged in accounts.",
-                    "No Accounts Found", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
+        //     if (steamAccounts.Count == 0)
+        //     {
+        //         MessageBoxHelper.Show("No Steam accounts detected. Make sure Steam is installed and you have logged in accounts.",
+        //             "No Accounts Found", MessageBoxButton.OK, MessageBoxImage.Information);
+        //         return;
+        //     }
 
-            int addedCount = 0;
-            foreach (var kvp in steamAccounts)
-            {
-                var steamId = kvp.Key;
-                var steamAccount = kvp.Value;
+        //     int addedCount = 0;
+        //     foreach (var kvp in steamAccounts)
+        //     {
+        //         var steamId = kvp.Key;
+        //         var steamAccount = kvp.Value;
 
-                // Check if account already exists by SteamId
-                var exists = _steamAuthProConfig.Accounts.Any(a => a.SteamId == steamId);
+        //         // Check if account already exists by SteamId
+        //         var exists = _steamAuthProConfig.Accounts.Any(a => a.SteamId == steamId);
 
-                if (!exists)
-                {
-                    var displayName = string.IsNullOrEmpty(steamAccount.PersonaName)
-                        ? $"{steamAccount.AccountName} → {steamId}"
-                        : $"{steamAccount.PersonaName} → {steamAccount.AccountName}";
+        //         if (!exists)
+        //         {
+        //             var displayName = string.IsNullOrEmpty(steamAccount.PersonaName)
+        //                 ? $"{steamAccount.AccountName} → {steamId}"
+        //                 : $"{steamAccount.PersonaName} → {steamAccount.AccountName}";
 
-                    _steamAuthProConfig.AddAccount(displayName, steamId);
-                    addedCount++;
-                }
-            }
+        //             _steamAuthProConfig.AddAccount(displayName, steamId);
+        //             addedCount++;
+        //         }
+        //     }
 
-            LoadSteamAuthProAccounts();
+        //     LoadSteamAuthProAccounts();
 
-            if (addedCount > 0)
-            {
-                MessageBoxHelper.Show($"Added {addedCount} Steam account(s).",
-                    "Auto-Detect Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else
-            {
-                MessageBoxHelper.Show("All detected Steam accounts are already in the list.",
-                    "Auto-Detect Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
+        //     if (addedCount > 0)
+        //     {
+        //         MessageBoxHelper.Show($"Added {addedCount} Steam account(s).",
+        //             "Auto-Detect Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        //     }
+        //     else
+        //     {
+        //         MessageBoxHelper.Show("All detected Steam accounts are already in the list.",
+        //             "Auto-Detect Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        //     }
+        // }
 
-        [RelayCommand]
-        private void SteamAuthProAddAccount()
-        {
-            var dialog = new InputDialog("Add Account", "Account Name:", "")
-            {
-                Owner = Application.Current.MainWindow
-            };
+        // [RelayCommand]
+        // private void SteamAuthProAddAccount()
+        // {
+        //     var dialog = new InputDialog("Add Account", "Account Name:", "")
+        //     {
+        //         Owner = Application.Current.MainWindow
+        //     };
 
-            if (dialog.ShowDialog() == true)
-            {
-                var name = dialog.Result;
-                if (string.IsNullOrWhiteSpace(name))
-                    return;
+        //     if (dialog.ShowDialog() == true)
+        //     {
+        //         var name = dialog.Result;
+        //         if (string.IsNullOrWhiteSpace(name))
+        //             return;
 
-                _steamAuthProConfig.AddAccount(name.Trim());
-                LoadSteamAuthProAccounts();
-            }
-        }
+        //         _steamAuthProConfig.AddAccount(name.Trim());
+        //         LoadSteamAuthProAccounts();
+        //     }
+        // }
 
-        [RelayCommand]
-        private void SteamAuthProRemoveAccount()
-        {
-            if (SteamAuthProActiveAccountIndex == -1)
-            {
-                MessageBoxHelper.Show("Please select an account to remove.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+        // [RelayCommand]
+        // private void SteamAuthProRemoveAccount()
+        // {
+        //     if (SteamAuthProActiveAccountIndex == -1)
+        //     {
+        //         MessageBoxHelper.Show("Please select an account to remove.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //         return;
+        //     }
 
-            var result = MessageBoxHelper.Show("Are you sure you want to remove this account?", "Confirm Delete",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+        //     var result = MessageBoxHelper.Show("Are you sure you want to remove this account?", "Confirm Delete",
+        //         MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (result == MessageBoxResult.Yes)
-            {
-                _steamAuthProConfig.RemoveAccount(SteamAuthProActiveAccountIndex);
-                LoadSteamAuthProAccounts();
-            }
-        }
+        //     if (result == MessageBoxResult.Yes)
+        //     {
+        //         _steamAuthProConfig.RemoveAccount(SteamAuthProActiveAccountIndex);
+        //         LoadSteamAuthProAccounts();
+        //     }
+        // }
 
-        [RelayCommand]
-        private void SteamAuthProSetActive()
-        {
-            if (SteamAuthProActiveAccountIndex == -1)
-            {
-                MessageBoxHelper.Show("Please select an account to set as active.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+        // [RelayCommand]
+        // private void SteamAuthProSetActive()
+        // {
+        //     if (SteamAuthProActiveAccountIndex == -1)
+        //     {
+        //         MessageBoxHelper.Show("Please select an account to set as active.", "No Selection", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //         return;
+        //     }
 
-            _steamAuthProConfig.SetActiveAccount(SteamAuthProActiveAccountIndex);
-            LoadSteamAuthProAccounts();
-        }
+        //     _steamAuthProConfig.SetActiveAccount(SteamAuthProActiveAccountIndex);
+        //     LoadSteamAuthProAccounts();
+        // }
 
-        private void LoadSteamAuthProAccounts()
-        {
-            SteamAuthProAccounts.Clear();
-            for (int i = 0; i < _steamAuthProConfig.Accounts.Count; i++)
-            {
-                var account = _steamAuthProConfig.Accounts[i];
-                var isActive = i == _steamAuthProConfig.ActiveAccount ? " [ACTIVE]" : "";
-                SteamAuthProAccounts.Add($"{account.Name}{isActive}");
-            }
-        }
+        // private void LoadSteamAuthProAccounts()
+        // {
+        //     SteamAuthProAccounts.Clear();
+        //     for (int i = 0; i < _steamAuthProConfig.Accounts.Count; i++)
+        //     {
+        //         var account = _steamAuthProConfig.Accounts[i];
+        //         var isActive = i == _steamAuthProConfig.ActiveAccount ? " [ACTIVE]" : "";
+        //         SteamAuthProAccounts.Add($"{account.Name}{isActive}");
+        //     }
+        // }
 
         [RelayCommand]
         private void BrowseConfigVdf()

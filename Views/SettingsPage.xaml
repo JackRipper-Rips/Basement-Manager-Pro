@@ -652,7 +652,7 @@
                         </Style>
                     </TabControl.Resources>
 
-                    <!-- SteamAuth Pro Sub-Tab -->
+                    <!-- SteamAuth Pro Sub-Tab - Site taken down, temporarily disabled
                     <TabItem Header="SteamAuth Pro">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
@@ -751,6 +751,7 @@
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
+                    -->
 
                     <!-- Config VDF Extractor Sub-Tab -->
                     <TabItem Header="Config VDF Extractor">
