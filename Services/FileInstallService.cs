@@ -13,11 +13,13 @@ namespace SolusManifestApp.Services
     {
         private readonly SteamService _steamService;
         private readonly LoggerService _logger;
+        private readonly AppInfoService _appInfoService;
 
         public FileInstallService(SteamService steamService, LoggerService logger)
         {
             _steamService = steamService;
             _logger = logger;
+            _appInfoService = new AppInfoService(steamService, logger);
         }
 
         public async Task<Dictionary<string, string>> InstallFromZipAsync(string zipPath, bool isGreenLumaMode, Action<string>? progressCallback = null, List<string>? selectedDepotIds = null)
@@ -405,7 +407,7 @@ namespace SolusManifestApp.Services
 	""Universe""		""1""
 	""LauncherPath""		""{steamExe}""
 	""name""		""{gameName}""
-	""StateFlags""		""4""
+	""StateFlags""		""6""
 	""installdir""		""{installDir}""
 	""LastUpdated""		""{timestamp}""
 	""SizeOnDisk""		""0""
@@ -1285,6 +1287,117 @@ namespace SolusManifestApp.Services
             }
 
             return depotIds;
+        }
+
+        public int ApplyTokensFromLuaFile(string luaFilePath)
+        {
+            try
+            {
+                if (!File.Exists(luaFilePath))
+                {
+                    _logger.Error($"Lua file not found: {luaFilePath}");
+                    return 0;
+                }
+
+                var luaContent = File.ReadAllText(luaFilePath);
+                var parser = new LuaParser();
+                var tokens = parser.ParseTokens(luaContent);
+
+                if (tokens.Count == 0)
+                {
+                    _logger.Debug("No tokens found in Lua file");
+                    return 0;
+                }
+
+                _logger.Debug($"Found {tokens.Count} tokens in Lua file");
+
+                if (!_appInfoService.ReadAppInfo())
+                {
+                    _logger.Error("Failed to read appinfo.vdf");
+                    return 0;
+                }
+
+                int appliedCount = 0;
+                foreach (var (appId, token) in tokens)
+                {
+                    if (uint.TryParse(appId, out uint id))
+                    {
+                        if (_appInfoService.SetToken(id, token))
+                        {
+                            appliedCount++;
+                            _logger.Debug($"Applied token for app {appId}");
+                        }
+                        else
+                        {
+                            _logger.Debug($"App {appId} not found in appinfo.vdf, token not applied");
+                        }
+                    }
+                }
+
+                if (appliedCount > 0)
+                {
+                    if (_appInfoService.WriteAppInfo())
+                    {
+                        _logger.Info($"Successfully wrote {appliedCount} tokens to appinfo.vdf");
+                    }
+                    else
+                    {
+                        _logger.Error("Failed to write appinfo.vdf");
+                        return 0;
+                    }
+                }
+
+                return appliedCount;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error applying tokens from Lua file: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public int ApplyTokensFromLuaContent(string luaContent)
+        {
+            try
+            {
+                var parser = new LuaParser();
+                var tokens = parser.ParseTokens(luaContent);
+
+                if (tokens.Count == 0)
+                {
+                    return 0;
+                }
+
+                if (!_appInfoService.ReadAppInfo())
+                {
+                    _logger.Error("Failed to read appinfo.vdf");
+                    return 0;
+                }
+
+                int appliedCount = 0;
+                foreach (var (appId, token) in tokens)
+                {
+                    if (uint.TryParse(appId, out uint id))
+                    {
+                        if (_appInfoService.SetToken(id, token))
+                        {
+                            appliedCount++;
+                        }
+                    }
+                }
+
+                if (appliedCount > 0)
+                {
+                    _appInfoService.WriteAppInfo();
+                }
+
+                return appliedCount;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error applying tokens: {ex.Message}");
+                return 0;
+            }
         }
     }
 }

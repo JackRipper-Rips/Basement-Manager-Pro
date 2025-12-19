@@ -20,6 +20,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SettingsService _settingsService;
         private readonly CacheService _cacheService;
         private readonly NotificationService _notificationService;
+        private readonly ManifestStorageService _manifestStorageService;
         private readonly SemaphoreSlim _iconLoadSemaphore = new SemaphoreSlim(10, 10); // Max 10 concurrent downloads
 
         [ObservableProperty]
@@ -76,13 +77,15 @@ namespace SolusManifestApp.ViewModels
             DownloadService downloadService,
             SettingsService settingsService,
             CacheService cacheService,
-            NotificationService notificationService)
+            NotificationService notificationService,
+            ManifestStorageService manifestStorageService)
         {
             _manifestApiService = manifestApiService;
             _downloadService = downloadService;
             _settingsService = settingsService;
             _cacheService = cacheService;
             _notificationService = notificationService;
+            _manifestStorageService = manifestStorageService;
 
             // Auto-load games on startup
             _ = InitializeAsync();
@@ -289,6 +292,9 @@ namespace SolusManifestApp.ViewModels
                     CanGoNext = false;
                     StatusMessage = $"Found {result.ReturnedCount} of {result.TotalMatches} matching games";
 
+                    // Check installation status
+                    UpdateInstallationStatus(result.Results);
+
                     // Load all icons in parallel
                     _ = LoadAllGameIconsAsync(result.Results);
                 }
@@ -368,6 +374,9 @@ namespace SolusManifestApp.ViewModels
                     var startIndex = CurrentOffset + 1;
                     var endIndex = System.Math.Min(CurrentOffset + result.Games.Count, TotalCount);
                     StatusMessage = $"Showing {startIndex}-{endIndex} of {TotalCount} games (Page {CurrentPage} of {TotalPages})";
+
+                    // Check installation status
+                    UpdateInstallationStatus(result.Games);
 
                     // Load all icons in parallel
                     _ = LoadAllGameIconsAsync(result.Games);
@@ -488,6 +497,87 @@ namespace SolusManifestApp.ViewModels
                     "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private async Task UpdateGame(LibraryGame game)
+        {
+            var settings = _settingsService.LoadSettings();
+
+            if (string.IsNullOrEmpty(settings.ApiKey))
+            {
+                MessageBoxHelper.Show(
+                    "Please enter API key in settings",
+                    "API Key Required",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!game.ManifestAvailable)
+            {
+                MessageBoxHelper.Show(
+                    $"Manifest for '{game.GameName}' is not available yet.",
+                    "Not Available",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var installedInfo = _manifestStorageService.GetInstalledManifest(game.GameId);
+            if (installedInfo == null)
+            {
+                MessageBoxHelper.Show(
+                    $"No installation info found for '{game.GameName}'.\nPlease download and install the game first.",
+                    "Not Installed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                var manifest = new Manifest
+                {
+                    AppId = game.GameId,
+                    Name = game.GameName,
+                    IconUrl = game.HeaderImage,
+                    Size = game.ManifestSize ?? 0,
+                    DownloadUrl = $"https://manifest.morrenus.xyz/api/v1/manifest/{game.GameId}"
+                };
+
+                StatusMessage = $"Downloading update: {game.GameName}";
+                var zipFilePath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, settings.ApiKey);
+
+                StatusMessage = $"{game.GameName} update downloaded";
+
+                MessageBoxHelper.Show(
+                    $"Update for {game.GameName} has been downloaded!\n\nGo to the Downloads page to install the update.\n\nNote: Delta downloading will only download changed files.",
+                    "Update Downloaded",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                game.HasUpdate = false;
+            }
+            catch (System.Exception ex)
+            {
+                StatusMessage = $"Update download failed: {ex.Message}";
+                MessageBoxHelper.Show(
+                    $"Failed to download update for {game.GameName}: {ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateInstallationStatus(List<LibraryGame> games)
+        {
+            foreach (var game in games)
+            {
+                var installedInfo = _manifestStorageService.GetInstalledManifest(game.GameId);
+                game.IsInstalled = installedInfo != null;
+                game.HasUpdate = false;
             }
         }
     }

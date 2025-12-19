@@ -78,6 +78,7 @@ namespace SolusManifestApp
                     services.AddSingleton<RecentGamesService>();
                     services.AddSingleton<ConfigKeysUploadService>();
                     services.AddSingleton<ProfileService>();
+                    services.AddSingleton<ManifestStorageService>();
 
                     // ViewModels
                     services.AddSingleton<MainViewModel>();
