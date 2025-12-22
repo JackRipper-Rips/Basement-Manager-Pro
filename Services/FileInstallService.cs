@@ -1322,7 +1322,7 @@ namespace SolusManifestApp.Services
                 {
                     if (uint.TryParse(appId, out uint id))
                     {
-                        if (_appInfoService.SetToken(id, token))
+                        if (_appInfoService.SetOrCreateToken(id, token))
                         {
                             appliedCount++;
                             _logger.Debug($"Applied token for app {appId}");
@@ -1379,7 +1379,7 @@ namespace SolusManifestApp.Services
                 {
                     if (uint.TryParse(appId, out uint id))
                     {
-                        if (_appInfoService.SetToken(id, token))
+                        if (_appInfoService.SetOrCreateToken(id, token))
                         {
                             appliedCount++;
                         }
