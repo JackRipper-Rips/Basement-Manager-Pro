@@ -24,6 +24,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SteamService _steamService;
         private readonly NotificationService _notificationService;
         private readonly LibraryRefreshService _libraryRefreshService;
+        private readonly ManifestStorageService _manifestStorageService;
         private readonly LoggerService _logger;
 
         [ObservableProperty]
@@ -45,7 +46,8 @@ namespace SolusManifestApp.ViewModels
             DepotDownloadService depotDownloadService,
             SteamService steamService,
             NotificationService notificationService,
-            LibraryRefreshService libraryRefreshService)
+            LibraryRefreshService libraryRefreshService,
+            ManifestStorageService manifestStorageService)
         {
             _downloadService = downloadService;
             _fileInstallService = fileInstallService;
@@ -54,6 +56,7 @@ namespace SolusManifestApp.ViewModels
             _steamService = steamService;
             _notificationService = notificationService;
             _libraryRefreshService = libraryRefreshService;
+            _manifestStorageService = manifestStorageService;
             _logger = new LoggerService("DownloadsView");
 
             ActiveDownloads = _downloadService.ActiveDownloads;
@@ -351,6 +354,16 @@ namespace SolusManifestApp.ViewModels
 
                 StatusMessage = $"Installing files...";
                 await _fileInstallService.InstallFromZipAsync(filePath, message => StatusMessage = message);
+
+                var luaContentForStorage = _downloadService.ExtractLuaContentFromZip(filePath, appId);
+                var luaParserForStorage = new LuaParser();
+                var manifestId = luaParserForStorage.GetPrimaryManifestId(luaContentForStorage, appId);
+                var manifestIds = luaParserForStorage.ParseManifestIds(luaContentForStorage);
+                var depotIdList = manifestIds.Keys.Select(k => uint.TryParse(k, out var id) ? id : 0).Where(id => id > 0).ToList();
+
+                var installPath = _steamService.GetStPluginPath() ?? "";
+                _manifestStorageService.StoreManifest(appId, appId, manifestId, installPath, depotIdList);
+                _logger.Info($"Stored manifest info for {appId} with manifestId {manifestId}");
 
                 _notificationService.ShowSuccess($"{fileName} has been installed successfully! Restart Steam for changes to take effect.", "Installation Complete");
                 StatusMessage = $"{fileName} installed successfully";
