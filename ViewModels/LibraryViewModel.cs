@@ -182,7 +182,6 @@ namespace SolusManifestApp.ViewModels
             }
 
             var cachedItems = _dbService.GetAllLibraryItems();
-            cachedItems = cachedItems.Where(i => i.ItemType != LibraryItemType.GreenLuma).ToList();
 
             if (cachedItems.Count > 0)
             {
@@ -239,8 +238,6 @@ namespace SolusManifestApp.ViewModels
                 {
                     _logger.Info("Loading library from database cache (fast path)");
                     var cachedItems = _dbService.GetAllLibraryItems();
-
-                    cachedItems = cachedItems.Where(i => i.ItemType != LibraryItemType.GreenLuma).ToList();
 
                     // Only use cache if it has items
                     if (cachedItems.Count > 0)
@@ -616,7 +613,7 @@ namespace SolusManifestApp.ViewModels
 
                 // Filter by type
                 if (!ShowLua)
-                    filtered = filtered.Where(i => i.ItemType != LibraryItemType.Lua && i.ItemType != LibraryItemType.GreenLuma);
+                    filtered = filtered.Where(i => i.ItemType != LibraryItemType.Lua);
                 if (!ShowSteamGames)
                     filtered = filtered.Where(i => i.ItemType != LibraryItemType.SteamGame);
 

@@ -7,8 +7,7 @@ namespace SolusManifestApp.Models
     public enum LibraryItemType
     {
         Lua,
-        SteamGame,
-        GreenLuma
+        SteamGame
     }
 
     public class LibraryItem : INotifyPropertyChanged
@@ -65,7 +64,6 @@ namespace SolusManifestApp.Models
         public string TypeBadge => ItemType switch
         {
             LibraryItemType.Lua => "LUA",
-            LibraryItemType.GreenLuma => "GL",
             _ => "GAME"
         };
 
@@ -109,20 +107,6 @@ namespace SolusManifestApp.Models
                 LastUpdated = steamGame.LastUpdated,
                 LocalPath = steamGame.LibraryPath,
                 ItemType = LibraryItemType.SteamGame
-            };
-        }
-
-        public static LibraryItem FromGreenLumaGame(GreenLumaGame greenLumaGame)
-        {
-            return new LibraryItem
-            {
-                AppId = greenLumaGame.AppId,
-                Name = greenLumaGame.Name,
-                SizeBytes = greenLumaGame.SizeBytes,
-                InstallDate = greenLumaGame.InstallDate,
-                LastUpdated = greenLumaGame.LastUpdated,
-                LocalPath = greenLumaGame.AcfPath,
-                ItemType = LibraryItemType.GreenLuma
             };
         }
     }
