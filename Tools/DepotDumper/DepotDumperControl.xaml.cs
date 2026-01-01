@@ -424,7 +424,7 @@ namespace SolusManifestApp.Tools.DepotDumper
             // Clear previous files list
             generatedFiles.Clear();
 
-            string outputDir = AppDomain.CurrentDomain.BaseDirectory;
+            string outputDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
             string pkgsFile = Path.Combine(outputDir, $"{filenameUser}_pkgs.txt");
             StreamWriter sw_pkgs = new StreamWriter(pkgsFile);
             sw_pkgs.AutoFlush = true;
@@ -499,7 +499,7 @@ namespace SolusManifestApp.Tools.DepotDumper
             int total = appIds.Count;
             var depots = new List<uint>();
 
-            string outputDir = AppDomain.CurrentDomain.BaseDirectory;
+            string outputDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory;
             string keysFile, tokensFile, namesFile;
 
             if (appIds.Count == 1)
