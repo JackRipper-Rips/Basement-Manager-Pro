@@ -259,14 +259,21 @@ namespace SolusManifestApp.Tools.DepotDumper
             isDumping = true;
 
             bool dumpUnreleased = DumpUnreleasedCheckBox.IsChecked ?? false;
-            uint targetAppId = uint.MaxValue;
+            var targetAppIds = new List<uint>();
             if (!string.IsNullOrWhiteSpace(AppIdTextBox.Text))
             {
-                if (!uint.TryParse(AppIdTextBox.Text, out targetAppId))
+                var parts = AppIdTextBox.Text.Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var part in parts)
                 {
-                    MessageBox.Show("Invalid App ID.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    DoneButton_Click(this, new RoutedEventArgs());
-                    return;
+                    var trimmed = part.Trim();
+                    if (string.IsNullOrEmpty(trimmed)) continue;
+                    if (!uint.TryParse(trimmed, out uint appId))
+                    {
+                        MessageBox.Show($"Invalid App ID: {trimmed}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        DoneButton_Click(this, new RoutedEventArgs());
+                        return;
+                    }
+                    targetAppIds.Add(appId);
                 }
             }
 
@@ -274,7 +281,7 @@ namespace SolusManifestApp.Tools.DepotDumper
             {
                 UseQrCode = useQr,
                 RememberPassword = false,
-                TargetAppId = targetAppId,
+                TargetAppIds = targetAppIds,
                 DumpUnreleased = dumpUnreleased
             };
 
@@ -384,15 +391,15 @@ namespace SolusManifestApp.Tools.DepotDumper
                     UpdateStatus("Requesting package info...");
                     await steam3.RequestPackageInfo(licenseQuery);
 
-                    if (config.TargetAppId == uint.MaxValue)
+                    if (config.TargetAppIds.Count == 0)
                     {
                         AppendLog("Dumping all apps in account...");
                         await DumpAllApps(licenseQuery);
                     }
                     else
                     {
-                        AppendLog($"Dumping single app: {config.TargetAppId}");
-                        await DumpSingleApp(licenseQuery);
+                        AppendLog($"Dumping {config.TargetAppIds.Count} app(s)...");
+                        await DumpSpecificApps(licenseQuery, config.TargetAppIds);
                     }
 
                     UpdateStatus("Dumping complete!");
@@ -417,7 +424,8 @@ namespace SolusManifestApp.Tools.DepotDumper
             // Clear previous files list
             generatedFiles.Clear();
 
-            string pkgsFile = string.Format("{0}_pkgs.txt", filenameUser);
+            string outputDir = AppDomain.CurrentDomain.BaseDirectory;
+            string pkgsFile = Path.Combine(outputDir, $"{filenameUser}_pkgs.txt");
             StreamWriter sw_pkgs = new StreamWriter(pkgsFile);
             sw_pkgs.AutoFlush = true;
 
@@ -441,9 +449,9 @@ namespace SolusManifestApp.Tools.DepotDumper
 
             sw_pkgs.Close();
 
-            string appsFile = string.Format("{0}_apps.txt", filenameUser);
-            string keysFile = string.Format("{0}_keys.txt", filenameUser);
-            string appnamesFile = string.Format("{0}_appnames.txt", filenameUser);
+            string appsFile = Path.Combine(outputDir, $"{filenameUser}_apps.txt");
+            string keysFile = Path.Combine(outputDir, $"{filenameUser}_keys.txt");
+            string appnamesFile = Path.Combine(outputDir, $"{filenameUser}_appnames.txt");
 
             StreamWriter sw_apps = new StreamWriter(appsFile);
             sw_apps.AutoFlush = true;
@@ -480,51 +488,65 @@ namespace SolusManifestApp.Tools.DepotDumper
             generatedFiles.Add(Path.GetFullPath(keysFile));
             generatedFiles.Add(Path.GetFullPath(appsFile));
 
-            AppendLog($"Files saved: {filenameUser}_pkgs.txt, {filenameUser}_apps.txt, {filenameUser}_keys.txt, {filenameUser}_appnames.txt");
+            AppendLog($"Files saved to: {outputDir}");
         }
 
-        private async Task DumpSingleApp(IEnumerable<uint> licenseQuery)
+        private async Task DumpSpecificApps(IEnumerable<uint> licenseQuery, List<uint> appIds)
         {
-            uint appId = steam3!.Config.TargetAppId;
-
-            // Clear previous files list
             generatedFiles.Clear();
 
-            UpdateStatus($"Requesting app info for {appId}...");
-            UpdateProgress(0, 1);
-            await steam3!.RequestAppInfo(appId);
+            int current = 0;
+            int total = appIds.Count;
+            var depots = new List<uint>();
 
-            if (steam3.AppTokens.ContainsKey(appId))
+            string outputDir = AppDomain.CurrentDomain.BaseDirectory;
+            string keysFile, tokensFile, namesFile;
+
+            if (appIds.Count == 1)
             {
-                UpdateStatus($"Dumping app {appId}...");
-                AppendLog($"Processing app {appId}...");
-
-                string tokenFile = string.Format("app_{0}_token.txt", appId);
-                string keysFile = string.Format("app_{0}_keys.txt", appId);
-                string appnamesFile = string.Format("app_{0}_names.txt", appId);
-
-                StreamWriter sw_apps = new StreamWriter(tokenFile);
-                StreamWriter sw_keys = new StreamWriter(keysFile);
-                StreamWriter sw_appnames = new StreamWriter(appnamesFile);
-
-                await DumpApp(appId, licenseQuery, sw_apps, sw_keys, sw_appnames, new List<uint>());
-
-                sw_apps.Close();
-                sw_keys.Close();
-                sw_appnames.Close();
-
-                // Add generated files to list for upload
-                generatedFiles.Add(Path.GetFullPath(keysFile));
-                generatedFiles.Add(Path.GetFullPath(tokenFile));
-
-                UpdateProgress(1, 1);
-                AppendLog($"Files saved: app_{appId}_token.txt, app_{appId}_keys.txt, app_{appId}_names.txt");
+                uint appId = appIds[0];
+                keysFile = Path.Combine(outputDir, $"app_{appId}_keys.txt");
+                tokensFile = Path.Combine(outputDir, $"app_{appId}_token.txt");
+                namesFile = Path.Combine(outputDir, $"app_{appId}_names.txt");
             }
             else
             {
-                UpdateProgress(0, 1);
-                AppendLog($"Unable to get token for app {appId}");
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                keysFile = Path.Combine(outputDir, $"apps_{timestamp}_keys.txt");
+                tokensFile = Path.Combine(outputDir, $"apps_{timestamp}_tokens.txt");
+                namesFile = Path.Combine(outputDir, $"apps_{timestamp}_names.txt");
             }
+
+            using var sw_apps = new StreamWriter(tokensFile);
+            using var sw_keys = new StreamWriter(keysFile);
+            using var sw_appnames = new StreamWriter(namesFile);
+            sw_apps.AutoFlush = true;
+            sw_keys.AutoFlush = true;
+            sw_appnames.AutoFlush = true;
+
+            foreach (var appId in appIds)
+            {
+                cancellationTokenSource?.Token.ThrowIfCancellationRequested();
+
+                current++;
+                UpdateProgress(current, total);
+                UpdateStatus($"Requesting app info for {appId} ({current}/{total})...");
+                await steam3!.RequestAppInfo(appId);
+
+                if (steam3.AppTokens.ContainsKey(appId))
+                {
+                    AppendLog($"Processing app {appId}...");
+                    await DumpApp(appId, licenseQuery, sw_apps, sw_keys, sw_appnames, depots);
+                }
+                else
+                {
+                    AppendLog($"Unable to get token for app {appId}");
+                }
+            }
+
+            generatedFiles.Add(keysFile);
+            generatedFiles.Add(tokensFile);
+            AppendLog($"Files saved to: {outputDir}");
         }
 
         private async Task<bool> DumpApp(uint appId, IEnumerable<uint> licenses,
@@ -623,6 +645,23 @@ namespace SolusManifestApp.Tools.DepotDumper
                         {
                             sw_appnames.WriteLine("\t\t{0} - {1}", branch.Name, branch["gid"].AsUnsignedLong());
                         }
+                    }
+                }
+            }
+
+            if (depotInfo["workshopdepot"] != KeyValue.Invalid)
+            {
+                uint workshopDepotId = depotInfo["workshopdepot"].AsUnsignedInteger();
+                if (workshopDepotId != 0 && !depots.Contains(workshopDepotId))
+                {
+                    await steam3.RequestDepotKeyEx(workshopDepotId, appId);
+
+                    byte[]? workshopKey;
+                    if (steam3.DepotKeys.TryGetValue(workshopDepotId, out workshopKey))
+                    {
+                        sw_keys.WriteLine("{0};{1}", workshopDepotId, string.Concat(workshopKey.Select(b => b.ToString("X2")).ToArray()));
+                        depots.Add(workshopDepotId);
+                        sw_appnames.WriteLine("\t{0} (workshop)", workshopDepotId);
                     }
                 }
             }

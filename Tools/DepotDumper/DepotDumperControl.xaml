@@ -40,11 +40,15 @@
                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                       Margin="0,0,0,15"/>
 
-                            <TextBlock Text="SPECIFIC APP ID (Optional)"
+                            <TextBlock Text="APP IDS (comma or newline separated, optional)"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        FontSize="12"
                                        Margin="0,0,0,5"/>
                             <TextBox x:Name="AppIdTextBox"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Height="80"
+                                     VerticalScrollBarVisibility="Auto"
                                      Margin="0,0,0,20"/>
 
                             <Button x:Name="SignInButton"
