@@ -329,15 +329,11 @@ namespace SolusManifestApp.Tools.DepotDumper
 
         private void Abort(bool sendLogOff = true)
         {
-            Log($"Abort called (sendLogOff={sendLogOff})");
-            Log($"Stack: {Environment.StackTrace}");
             Disconnect(sendLogOff);
         }
 
         public void Disconnect(bool sendLogOff = true)
         {
-            Log($"Disconnect called (sendLogOff={sendLogOff})");
-            Log($"Stack: {Environment.StackTrace}");
             if (sendLogOff)
             {
                 steamUser.LogOff();
@@ -484,8 +480,6 @@ namespace SolusManifestApp.Tools.DepotDumper
         private void DisconnectedCallback(SteamClient.DisconnectedCallback disconnected)
         {
             bDidDisconnect = true;
-
-            Log($"DisconnectedCallback: bIsConnectionRecovery={bIsConnectionRecovery}, UserInitiated={disconnected.UserInitiated}, bExpectingDisconnectRemote={bExpectingDisconnectRemote}");
 
             if (!bIsConnectionRecovery && (disconnected.UserInitiated || bExpectingDisconnectRemote))
             {

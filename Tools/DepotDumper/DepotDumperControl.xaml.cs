@@ -314,13 +314,7 @@ namespace SolusManifestApp.Tools.DepotDumper
             }
             catch (Exception ex)
             {
-                AppendLog($"EXCEPTION: {ex.GetType().Name}: {ex.Message}");
-                AppendLog($"Stack trace:\n{ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    AppendLog($"Inner exception: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}");
-                    AppendLog($"Inner stack trace:\n{ex.InnerException.StackTrace}");
-                }
+                AppendLog($"Error: {ex.Message}");
                 await Dispatcher.InvokeAsync(() =>
                 {
                     MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
