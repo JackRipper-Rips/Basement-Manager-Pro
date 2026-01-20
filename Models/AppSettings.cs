@@ -106,5 +106,8 @@ namespace SolusManifestApp.Models
         // View Mode Preferences
         public bool StoreListView { get; set; } = false; // false = grid, true = list
         public bool LibraryListView { get; set; } = false; // false = grid, true = list
+
+        // Fix Installer Configuration
+        public string FixBaseUrl { get; set; } = "https://example-server.com/fixes/{appid}.zip";
     }
 }

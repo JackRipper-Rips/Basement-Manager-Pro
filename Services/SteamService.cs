@@ -1,8 +1,11 @@
 using Microsoft.Win32;
+using SolusManifestApp.Helpers;
 using SolusManifestApp.Interfaces;
 using SolusManifestApp.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SolusManifestApp.Services
 {
@@ -176,6 +179,85 @@ namespace SolusManifestApp.Services
             {
                 throw new Exception($"Failed to restart Steam: {ex.Message}", ex);
             }
+        }
+
+        public string? GetGameInstallPath(int appId)
+        {
+            var steamPath = GetSteamPath();
+            if (string.IsNullOrEmpty(steamPath))
+            {
+                return null;
+            }
+
+            var libraryFolders = GetLibraryFolders(steamPath);
+
+            foreach (var folder in libraryFolders)
+            {
+                var steamAppsPath = Path.Combine(folder, "steamapps");
+                if (!Directory.Exists(steamAppsPath)) continue;
+
+                var manifestPath = Path.Combine(steamAppsPath, $"appmanifest_{appId}.acf");
+
+                if (File.Exists(manifestPath))
+                {
+                    try
+                    {
+                        var vdf = VdfParser.Parse(manifestPath);
+                        if (VdfParser.GetObject(vdf, "AppState") is Dictionary<string, object> appStateDict)
+                        {
+                            var installDir = VdfParser.GetValue(appStateDict, "installdir");
+                            if (!string.IsNullOrEmpty(installDir))
+                            {
+                                return Path.Combine(steamAppsPath, "common", installDir);
+                            }
+                        }
+                    }
+                    catch { /* Ignore parsing errors for this manifest */ }
+                }
+            }
+
+            return null;
+        }
+
+        private List<string> GetLibraryFolders(string steamPath)
+        {
+            var folders = new List<string>();
+            if (string.IsNullOrEmpty(steamPath)) return folders;
+
+            folders.Add(steamPath);
+
+            var libraryFoldersFile = Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
+            if (!File.Exists(libraryFoldersFile))
+            {
+                libraryFoldersFile = Path.Combine(steamPath, "config", "libraryfolders.vdf");
+            }
+
+            if (File.Exists(libraryFoldersFile))
+            {
+                try
+                {
+                    var data = VdfParser.Parse(libraryFoldersFile);
+                    var libraryFoldersObj = VdfParser.GetObject(data, "libraryfolders");
+                    if (libraryFoldersObj != null)
+                    {
+                        for (int i = 0; i < 10; i++)
+                        {
+                            var folderData = VdfParser.GetObject(libraryFoldersObj, i.ToString());
+                            if (folderData != null)
+                            {
+                                var path = VdfParser.GetValue(folderData, "path");
+                                if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+                                {
+                                    folders.Add(path);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { /* If parsing fails, just use main Steam folder */ }
+            }
+
+            return folders.Distinct().ToList();
         }
     }
 }

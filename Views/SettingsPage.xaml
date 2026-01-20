@@ -108,13 +108,18 @@
                                            Margin="0,0,0,10">
                                     <Run Text="How to get your Basement API key:"/>
                                     <LineBreak/>
-                                    <Run Text="1. The Basement API server is at: http://steamgames.freeddns.org:8881/api/v1"/>
+                                    <Run Text="1. Go to "/>
+                                    <Hyperlink NavigateUri="http://steamgames.freeddns.org:8881"
+                                               RequestNavigate="Hyperlink_RequestNavigate">
+                                        <Run Text="http://steamgames.freeddns.org:8881"/>
+                                    </Hyperlink>
+                                    <Run Text=" and login with your Discord account"/>
                                     <LineBreak/>
                                     <Run Text="2. Generate an API key from your Basement server dashboard"/>
                                     <LineBreak/>
                                     <Run Text="3. Paste the API key below and click Validate"/>
                                     <LineBreak/>
-                                    <Run Text="4. The Basement API provides the same features as Morrenus"/>
+                                    <Run Text="4. Enjoy your downloads. (You must be in The Basement Discord)"/>
                                 </TextBlock>
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
@@ -500,6 +505,34 @@
                                           IsChecked="{Binding DeleteZipAfterInstall}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           ToolTip="Automatically delete the downloaded ZIP file after successful installation"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Fix Installer Configuration -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="Fix Installer"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Fix Base URL"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <TextBox Text="{Binding FixBaseUrl, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="10,8"
+                                         FontSize="14"
+                                         Margin="0,0,0,10"/>
+
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="12"
+                                           FontStyle="Italic">
+                                    Use {appid} as a placeholder for the Steam App ID in the URL.<LineBreak/>
+                                    Example: https://example.com/fixes/{appid}.zip<LineBreak/>
+                                    The {appid} will be replaced with the actual App ID when checking or downloading fixes.
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 

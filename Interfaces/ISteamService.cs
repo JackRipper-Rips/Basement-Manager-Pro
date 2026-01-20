@@ -5,5 +5,6 @@ namespace SolusManifestApp.Interfaces
         string? GetSteamPath();
         string? GetStPluginPath();
         bool EnsureStPluginDirectory();
+        string? GetGameInstallPath(int appId);
     }
 }

@@ -97,6 +97,7 @@ namespace SolusManifestApp
                     services.AddSingleton<RecentGamesService>();
                     services.AddSingleton<ConfigKeysUploadService>();
                     services.AddSingleton<ManifestStorageService>();
+                    services.AddSingleton<FixApplierService>();
 
                     // ViewModels
                     services.AddSingleton<MainViewModel>();
@@ -109,6 +110,7 @@ namespace SolusManifestApp
                     services.AddTransient<SettingsViewModel>();
                     services.AddTransient<SupportViewModel>();
                     services.AddTransient<DataBackupViewModel>();
+                    services.AddTransient<FixInstallerViewModel>();
 
                     // Views
                     services.AddSingleton<MainWindow>();

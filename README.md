@@ -45,7 +45,7 @@ Basement Manager Pro is a powerful Windows desktop application for managing Stea
 
 ### Additional Tools
 - **Data Backup**: Backup Achievements, Playtime and Added games in once click
-- **Fix Installer**: Easily install game fixes from a server or a downloaded archive
+- **Fix Installer**: Easily install game fixes from a server or a downloaded archive (Supports password protected archives)
 
 ### User Experience
 - **8 Themes**: Default, Dark, Light, Cherry, Sunset, Forest, Grape, Cyberpunk

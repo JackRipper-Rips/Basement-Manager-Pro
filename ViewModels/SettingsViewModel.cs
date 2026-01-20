@@ -160,6 +160,10 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private int _maxConcurrentDownloads;
 
+        // Fix Installer properties
+        [ObservableProperty]
+        private string _fixBaseUrl = string.Empty;
+
         public string CurrentVersion => _updateService.GetCurrentVersion();
 
         partial void OnSteamPathChanged(string value) => MarkAsUnsaved();
@@ -192,6 +196,7 @@ namespace SolusManifestApp.ViewModels
         partial void OnMaxConcurrentDownloadsChanged(int value) => MarkAsUnsaved();
         partial void OnGBETokenOutputPathChanged(string value) => MarkAsUnsaved();
         partial void OnGBESteamWebApiKeyChanged(string value) => MarkAsUnsaved();
+        partial void OnFixBaseUrlChanged(string value) => MarkAsUnsaved();
         partial void OnSelectedStoreChanged(string value)
         {
             OnPropertyChanged(nameof(IsBasementSelected));
@@ -326,6 +331,9 @@ namespace SolusManifestApp.ViewModels
             GBETokenOutputPath = Settings.GBETokenOutputPath;
             GBESteamWebApiKey = Settings.GBESteamWebApiKey;
 
+            // Load Fix Installer settings
+            FixBaseUrl = Settings.FixBaseUrl;
+
             _isLoading = false;
             HasUnsavedChanges = false; // Clear unsaved changes flag after load
 
@@ -391,6 +399,9 @@ namespace SolusManifestApp.ViewModels
             // Save GBE settings
             Settings.GBETokenOutputPath = GBETokenOutputPath;
             Settings.GBESteamWebApiKey = GBESteamWebApiKey;
+
+            // Save Fix Installer settings
+            Settings.FixBaseUrl = FixBaseUrl;
 
             try
             {

@@ -34,6 +34,7 @@ namespace SolusManifestApp.ViewModels
         public SettingsViewModel SettingsViewModel { get; }
         public SupportViewModel SupportViewModel { get; }
         public DataBackupViewModel DataBackupViewModel { get; }
+        public FixInstallerViewModel FixInstallerViewModel { get; }
 
         public MainViewModel(
             SteamService steamService,
@@ -48,7 +49,8 @@ namespace SolusManifestApp.ViewModels
             ToolsViewModel toolsViewModel,
             SettingsViewModel settingsViewModel,
             SupportViewModel supportViewModel,
-            DataBackupViewModel dataBackupViewModel)
+            DataBackupViewModel dataBackupViewModel,
+            FixInstallerViewModel fixInstallerViewModel)
         {
             _steamService = steamService;
             _settingsService = settingsService;
@@ -64,6 +66,7 @@ namespace SolusManifestApp.ViewModels
             SettingsViewModel = settingsViewModel;
             SupportViewModel = supportViewModel;
             DataBackupViewModel = dataBackupViewModel;
+            FixInstallerViewModel = fixInstallerViewModel;
 
             // Start at Home page
             CurrentPage = GetOrCreateView("Home", () => new HomePage { DataContext = HomeViewModel });
@@ -127,6 +130,9 @@ namespace SolusManifestApp.ViewModels
                     break;
                 case "databackup":
                     NavigateToDataBackup();
+                    break;
+                case "fixinstaller":
+                    NavigateToFixInstaller();
                     break;
             }
         }
@@ -216,6 +222,15 @@ namespace SolusManifestApp.ViewModels
 
             CurrentPage = GetOrCreateView("DataBackup", () => new DataBackupPage { DataContext = DataBackupViewModel });
             CurrentPageName = "DataBackup";
+        }
+
+        [RelayCommand]
+        private void NavigateToFixInstaller()
+        {
+            if (!CanNavigateAway()) return;
+
+            CurrentPage = GetOrCreateView("FixInstaller", () => new FixInstallerPage { DataContext = FixInstallerViewModel });
+            CurrentPageName = "FixInstaller";
         }
 
         [RelayCommand]
