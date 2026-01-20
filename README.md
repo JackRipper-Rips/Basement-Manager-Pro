@@ -12,7 +12,7 @@
 
 ## Description
 
-Solus Manifest App is a powerful Windows desktop application for managing Steam game depots and advanced Steam library management. Built with .NET 8 and WPF, it features a modern Steam-inspired interface with two operation modes: SteamTools (Lua scripts) and DepotDownloader.
+Basement Manager Pro is a powerful Windows desktop application for managing Steam game depots and advanced Steam library management. Built with .NET 8 and WPF, it features a modern Steam-inspired interface with two operation modes: SteamTools (Lua scripts) and DepotDownloader. It is forked from Solus Manifest App with additional features.
 
 ## Key Features
 
@@ -21,6 +21,7 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 - **DepotDownloader Mode**: Download actual game files from Steam CDN with language/depot selection
 
 ### Store & Downloads
+- **Dual Store Support**: Supports The Basement store and Morrenus store
 - **Manifest Library**: Browse and search games from manifest.morrenus.xyz with pagination
 - **One-Click Downloads**: Download game manifests with automatic depot key lookup
 - **Language Selection**: Choose specific languages when downloading (DepotDownloader mode)
@@ -42,6 +43,10 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 - **Config VDF Extractor**: Extract depot keys from Steam's config.vdf
 - **GBE Token Generator**: Generate Goldberg emulator tokens
 
+### Additional Tools
+- **Data Backup**: Backup Achievements, Playtime and Added games in once click
+- **Fix Installer**: Easily install game fixes from a server or a downloaded archive
+
 ### User Experience
 - **8 Themes**: Default, Dark, Light, Cherry, Sunset, Forest, Grape, Cyberpunk
 - **DPI Scaling**: PerMonitorV2 support for high-DPI displays
@@ -57,7 +62,7 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 
 ### Quick Start
 
-1. Download the latest release from [Releases](https://github.com/JackRipper-Rips/Solus-Manifest-App/releases)
+1. Download the latest release from [Releases](https://github.com/JackRipper-Rips/Basement-Manager-Pro/releases)
 2. Run `BasementManagerPro.exe`
 
 **That's it!** No installation required. Self-contained single-file executable with all dependencies embedded.
@@ -120,11 +125,12 @@ The protocol is automatically registered on first launch and updates if the app 
 
 ### Community
 Thanks to Morrenus for the original project.
+- [SolusManifestApp](https://github.com/MorrenusGames/Solus-Manifest-App) by Morrenus
 
 ---
 
 <div align="center">
 
-[Discord](https://discord.gg/morrenusgames) | [Website](https://manifest.morrenus.xyz) | [GitHub](https://JackRipper-Rips/Solus-Manifest-App)
+[GitHub](https://JackRipper-Rips/Basement-Manager-Pro)
 
 </div>

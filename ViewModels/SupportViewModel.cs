@@ -38,7 +38,7 @@ namespace SolusManifestApp.ViewModels
             _logger.Info("User opened GitHub link from Support tab");
             Process.Start(new ProcessStartInfo
             {
-                FileName = "https://github.com/JackRipper-Rips/Solus-Manifest-App",
+                FileName = "https://github.com/JackRipper-Rips/Basement-Manager-Pro",
                 UseShellExecute = true
             });
         }

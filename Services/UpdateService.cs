@@ -48,7 +48,7 @@ namespace SolusManifestApp.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private const string GitHubApiUrl = "https://api.github.com/repos/{owner}/{repo}/releases/latest";
         private const string Owner = "JackRipper-Rips";
-        private const string Repo = "Solus-Manifest-App";
+        private const string Repo = "Basement-Manager-Pro";
 
         public UpdateService(IHttpClientFactory httpClientFactory)
         {
