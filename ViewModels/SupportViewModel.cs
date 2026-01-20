@@ -27,7 +27,7 @@ namespace SolusManifestApp.ViewModels
             _logger.Info("User opened Discord link from Support tab");
             Process.Start(new ProcessStartInfo
             {
-                FileName = "https://discord.gg/morrenusgames",
+                FileName = "https://discord.gg/vbszTzYm2K",
                 UseShellExecute = true
             });
         }
@@ -36,6 +36,17 @@ namespace SolusManifestApp.ViewModels
         private void OpenGitHub()
         {
             _logger.Info("User opened GitHub link from Support tab");
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/JackRipper-Rips/Solus-Manifest-App",
+                UseShellExecute = true
+            });
+        }
+
+        [RelayCommand]
+        private void OpenMorrenusGitHub()
+        {
+            _logger.Info("User opened Morrenus GitHub link from Support tab");
             Process.Start(new ProcessStartInfo
             {
                 FileName = "https://github.com/MorrenusGames/Solus-Manifest-App",

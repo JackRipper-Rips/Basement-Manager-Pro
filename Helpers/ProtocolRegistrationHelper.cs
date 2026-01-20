@@ -7,7 +7,7 @@ namespace SolusManifestApp.Helpers
 {
     public static class ProtocolRegistrationHelper
     {
-        private const string ProtocolName = "solusapp";
+        private const string ProtocolName = "basement";
         private const string RegistryPath = @"Software\Classes\" + ProtocolName;
 
         public static bool IsProtocolRegistered()
@@ -87,7 +87,7 @@ namespace SolusManifestApp.Helpers
             if (string.IsNullOrEmpty(url))
                 return null;
 
-            // Handle both formats: solusapp://download/install/400 and "solusapp://download/install/400"
+            // Handle both formats: basement://download/install/400 and "basement://download/install/400"
             var cleanUrl = url.Trim('"', ' ');
 
             if (!cleanUrl.StartsWith($"{ProtocolName}://", StringComparison.OrdinalIgnoreCase))

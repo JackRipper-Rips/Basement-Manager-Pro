@@ -14,7 +14,7 @@ namespace SolusManifestApp.Services
         public SettingsService()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var appFolder = Path.Combine(appData, "SolusManifestApp");
+            var appFolder = Path.Combine(appData, "BasementManagerPro");
             Directory.CreateDirectory(appFolder);
             _settingsPath = Path.Combine(appFolder, "settings.json");
         }
@@ -47,7 +47,7 @@ namespace SolusManifestApp.Services
             {
                 _settings.DownloadsPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "SolusManifestApp",
+                    "BasementManagerPro",
                     "Downloads"
                 );
             }
@@ -64,7 +64,7 @@ namespace SolusManifestApp.Services
             {
                 // If we can't create in Documents, fall back to AppData
                 var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var fallbackPath = Path.Combine(appData, "SolusManifestApp", "Downloads");
+                var fallbackPath = Path.Combine(appData, "BasementManagerPro", "Downloads");
                 Directory.CreateDirectory(fallbackPath);
                 _settings.DownloadsPath = fallbackPath;
             }

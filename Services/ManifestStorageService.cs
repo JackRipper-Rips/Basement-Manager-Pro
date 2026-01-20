@@ -29,7 +29,7 @@ namespace SolusManifestApp.Services
             _logger = logger;
             _manifestFolder = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SolusManifestApp",
+                "BasementManagerPro",
                 "Manifests"
             );
             _indexFilePath = Path.Combine(_manifestFolder, "manifest_index.json");

@@ -21,7 +21,7 @@ namespace SolusManifestApp.Services
         public CacheService(LoggerService? logger = null)
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _cacheFolder = Path.Combine(appData, "SolusManifestApp", "Cache");
+            _cacheFolder = Path.Combine(appData, "BasementManagerPro", "Cache");
             _iconCacheFolder = Path.Combine(_cacheFolder, "Icons");
             _dataCacheFolder = Path.Combine(_cacheFolder, "Data");
 

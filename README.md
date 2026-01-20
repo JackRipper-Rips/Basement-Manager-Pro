@@ -4,7 +4,7 @@
 
 **A comprehensive Steam depot and manifest management tool**
 
-[![Latest Release](https://img.shields.io/github/v/release/MorrenusGames/Solus-Manifest-App?include_prereleases)](https://github.com/MorrenusGames/Solus-Manifest-App/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/JackRipper-Rips/Solus-Manifest-App?include_prereleases)](https://github.com/JackRipper-Rips/Solus-Manifest-App/releases/latest)
 
 </div>
 
@@ -49,7 +49,7 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 - **Auto-Updates**: Three modes - Disabled, Check Only, Auto Download & Install
 - **System Tray**: Minimize to tray with quick access menu
 - **Toast Notifications**: Native Windows 10+ notifications (can be disabled)
-- **Protocol Handler**: `solusapp://` URI scheme for quick actions
+- **Protocol Handler**: `basement://` URI scheme for quick actions
 - **Single Instance**: Prevents multiple app instances
 - **Settings Backup**: Export and import settings and mod lists
 
@@ -57,8 +57,8 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 
 ### Quick Start
 
-1. Download the latest release from [Releases](https://github.com/MorrenusGames/Solus-Manifest-App/releases)
-2. Run `SolusManifestApp.exe`
+1. Download the latest release from [Releases](https://github.com/JackRipper-Rips/Solus-Manifest-App/releases)
+2. Run `BasementManagerPro.exe`
 
 **That's it!** No installation required. Self-contained single-file executable with all dependencies embedded.
 
@@ -71,13 +71,13 @@ Solus Manifest App is a powerful Windows desktop application for managing Steam 
 ### First Launch
 
 On first launch, the app will:
-- Create settings in `%AppData%\SolusManifestApp`
+- Create settings in `%AppData%\BasementManagerPro`
 - Detect your Steam installation automatically
 - Create local SQLite database for library caching
 
 ## Configuration
 
-Settings are stored in `%AppData%\SolusManifestApp` and include:
+Settings are stored in `%AppData%\BasementManagerPro` and include:
 
 | Category | Options |
 |----------|---------|
@@ -90,17 +90,17 @@ Settings are stored in `%AppData%\SolusManifestApp` and include:
 
 ## URI Scheme
 
-The app registers a `solusapp://` protocol handler for quick actions from web browsers or other applications.
+The app registers a `basement://` protocol handler for quick actions from web browsers or other applications.
 
 | URL Format | Action |
 |------------|--------|
-| `solusapp://download/{appId}` | Download manifest for the specified App ID |
-| `solusapp://install/{appId}` | Install a previously downloaded game |
-| `solusapp://download/install/{appId}` | Download and install in one step |
+| `basement://download/{appId}` | Download manifest for the specified App ID |
+| `basement://install/{appId}` | Install a previously downloaded game |
+| `basement://download/install/{appId}` | Download and install in one step |
 
 **Examples:**
-- `solusapp://download/400` - Downloads Half-Life 2 manifest
-- `solusapp://download/install/400` - Downloads and installs Half-Life 2
+- `basement://download/400` - Downloads Half-Life 2 manifest
+- `basement://download/install/400` - Downloads and installs Half-Life 2
 
 The protocol is automatically registered on first launch and updates if the app location changes.
 
@@ -119,12 +119,12 @@ The protocol is automatically registered on first launch and updates if the app 
 - [DepotDownloader](https://github.com/SteamRE/DepotDownloader) by SteamRE
 
 ### Community
-Thanks to Melly from [Lua Tools](https://discord.gg/Qxeq7RmhXw) and the Morrenus Games community for inspiration, testing, and feedback.
+Thanks to Morrenus for the original project.
 
 ---
 
 <div align="center">
 
-[Discord](https://discord.gg/morrenusgames) | [Website](https://manifest.morrenus.xyz) | [GitHub](https://github.com/MorrenusGames/Solus-Manifest-App)
+[Discord](https://discord.gg/morrenusgames) | [Website](https://manifest.morrenus.xyz) | [GitHub](https://JackRipper-Rips/Solus-Manifest-App)
 
 </div>

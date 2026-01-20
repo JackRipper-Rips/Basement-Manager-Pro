@@ -17,7 +17,7 @@ namespace SolusManifestApp.Services
         private readonly HttpClient _httpClient;
         private readonly Dictionary<string, CancellationTokenSource> _downloadCancellations;
         private readonly object _collectionLock = new object();
-        private readonly ManifestApiService _manifestApiService;
+        private readonly StoreApiFactory _storeApiFactory;
         private readonly LoggerService _logger;
 
         public ObservableCollection<DownloadItem> ActiveDownloads { get; }
@@ -30,14 +30,14 @@ namespace SolusManifestApp.Services
 
         private bool _isProcessingQueue = false;
 
-        public DownloadService(ManifestApiService manifestApiService)
+        public DownloadService(StoreApiFactory storeApiFactory)
         {
             _httpClient = new HttpClient
             {
                 Timeout = TimeSpan.FromMinutes(30)
             };
             _downloadCancellations = new Dictionary<string, CancellationTokenSource>();
-            _manifestApiService = manifestApiService;
+            _storeApiFactory = storeApiFactory;
             _logger = new LoggerService("Downloads");
             ActiveDownloads = new ObservableCollection<DownloadItem>();
             QueuedDownloads = new ObservableCollection<DownloadItem>();
@@ -61,7 +61,7 @@ namespace SolusManifestApp.Services
                     downloadItem.StatusMessage = "Checking server status...");
 
                 _logger.Debug($"Checking status for app {appId}...");
-                var status = await _manifestApiService.GetGameStatusAsync(appId, apiKey);
+                var status = await _storeApiFactory.GetGameStatusAsync(appId, apiKey);
                 _logger.Debug($"Status result: UpdateInProgress={status?.UpdateInProgress}, Status={status?.Status}");
 
                 if (status == null || status.UpdateInProgress != true)
@@ -548,7 +548,7 @@ namespace SolusManifestApp.Services
 
                     try
                     {
-                        var status = await _manifestApiService.GetGameStatusAsync(manifest.AppId, apiKey);
+                        var status = await _storeApiFactory.GetGameStatusAsync(manifest.AppId, apiKey);
                         _logger.Debug($"FileOnly: Status check result: UpdateInProgress={status?.UpdateInProgress}, Status={status?.Status}");
 
                         if (status?.UpdateInProgress == true)

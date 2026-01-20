@@ -42,6 +42,20 @@ namespace SolusManifestApp
                         client.DefaultRequestHeaders.Add("User-Agent", "SolusManifestApp/1.0");
                     });
 
+                    // Morrenus-specific HttpClient with SolusManifestApp User-Agent
+                    services.AddHttpClient("Morrenus", client =>
+                    {
+                        client.Timeout = TimeSpan.FromMinutes(30);
+                        client.DefaultRequestHeaders.Add("User-Agent", "SolusManifestApp/1.0");
+                    });
+
+                    // Basement-specific HttpClient with BasementManagerPro User-Agent
+                    services.AddHttpClient("Basement", client =>
+                    {
+                        client.Timeout = TimeSpan.FromMinutes(30);
+                        client.DefaultRequestHeaders.Add("User-Agent", "BasementManagerPro/1.0");
+                    });
+
                     // Services (with interface registrations for testability)
                     services.AddSingleton<LoggerService>();
                     services.AddSingleton<ILoggerService>(sp => sp.GetRequiredService<LoggerService>());
@@ -55,8 +69,13 @@ namespace SolusManifestApp
                     services.AddSingleton<SteamGamesService>();
                     services.AddSingleton<SteamApiService>();
 
+                    // Register both store API implementations
                     services.AddSingleton<ManifestApiService>();
-                    services.AddSingleton<IManifestApiService>(sp => sp.GetRequiredService<ManifestApiService>());
+                    services.AddSingleton<BasementApiService>();
+
+                    // Register factory that selects the correct store based on settings
+                    services.AddSingleton<StoreApiFactory>();
+                    services.AddSingleton<IManifestApiService>(sp => sp.GetRequiredService<StoreApiFactory>());
 
                     services.AddSingleton<DownloadService>();
                     services.AddSingleton<FileInstallService>();
@@ -69,6 +88,7 @@ namespace SolusManifestApp
                     services.AddSingleton<ICacheService>(sp => sp.GetRequiredService<CacheService>());
 
                     services.AddSingleton<BackupService>();
+                    services.AddSingleton<DataBackupService>();
                     services.AddSingleton<DepotDownloadService>();
                     services.AddSingleton<ThemeService>();
                     services.AddSingleton<ProtocolHandlerService>();
@@ -88,6 +108,7 @@ namespace SolusManifestApp
                     services.AddSingleton<ToolsViewModel>();
                     services.AddTransient<SettingsViewModel>();
                     services.AddTransient<SupportViewModel>();
+                    services.AddTransient<DataBackupViewModel>();
 
                     // Views
                     services.AddSingleton<MainWindow>();
@@ -106,7 +127,7 @@ namespace SolusManifestApp
             {
                 // Not the first instance, notify user and send args to first instance
                 MessageBox.Show(
-                    "Solus Manifest App is already running.\n\nThe existing instance has been brought to the foreground.",
+                    "Basement Manager Pro is already running.\n\nThe existing instance has been brought to the foreground.",
                     "Already Running",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);

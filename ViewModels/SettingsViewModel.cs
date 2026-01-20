@@ -17,6 +17,7 @@ namespace SolusManifestApp.ViewModels
         private readonly SteamService _steamService;
         private readonly SettingsService _settingsService;
         private readonly ManifestApiService _manifestApiService;
+        private readonly BasementApiService _basementApiService;
         private readonly BackupService _backupService;
         private readonly CacheService _cacheService;
         private readonly NotificationService _notificationService;
@@ -71,6 +72,9 @@ namespace SolusManifestApp.ViewModels
         private bool _autoUploadConfigKeys;
 
         [ObservableProperty]
+        private bool _basementAutoUploadConfigKeys;
+
+        [ObservableProperty]
         private bool _disableAllNotifications;
 
         [ObservableProperty]
@@ -114,6 +118,18 @@ namespace SolusManifestApp.ViewModels
 
         [ObservableProperty]
         private bool _hasUnsavedChanges;
+
+        [ObservableProperty]
+        private string _selectedStore = "Basement";
+
+        [ObservableProperty]
+        private string _basementApiKey = string.Empty;
+
+        [ObservableProperty]
+        private string _basementApiUrl = "http://steamgames.freeddns.org:8881/api/v1";
+
+        public bool IsBasementSelected => SelectedStore == "Basement";
+        public bool IsMorrenusSelected => SelectedStore == "Morrenus";
 
         private bool _isLoading;
 
@@ -176,6 +192,14 @@ namespace SolusManifestApp.ViewModels
         partial void OnMaxConcurrentDownloadsChanged(int value) => MarkAsUnsaved();
         partial void OnGBETokenOutputPathChanged(string value) => MarkAsUnsaved();
         partial void OnGBESteamWebApiKeyChanged(string value) => MarkAsUnsaved();
+        partial void OnSelectedStoreChanged(string value)
+        {
+            OnPropertyChanged(nameof(IsBasementSelected));
+            OnPropertyChanged(nameof(IsMorrenusSelected));
+            MarkAsUnsaved();
+        }
+        partial void OnBasementApiKeyChanged(string value) => MarkAsUnsaved();
+        partial void OnBasementApiUrlChanged(string value) => MarkAsUnsaved();
 
         private void MarkAsUnsaved()
         {
@@ -209,6 +233,7 @@ namespace SolusManifestApp.ViewModels
             SteamService steamService,
             SettingsService settingsService,
             ManifestApiService manifestApiService,
+            BasementApiService basementApiService,
             BackupService backupService,
             CacheService cacheService,
             NotificationService notificationService,
@@ -220,6 +245,7 @@ namespace SolusManifestApp.ViewModels
             _steamService = steamService;
             _settingsService = settingsService;
             _manifestApiService = manifestApiService;
+            _basementApiService = basementApiService;
             _backupService = backupService;
             _cacheService = cacheService;
             _notificationService = notificationService;
@@ -264,6 +290,7 @@ namespace SolusManifestApp.ViewModels
             StartMinimized = Settings.StartMinimized;
             AlwaysShowTrayIcon = Settings.AlwaysShowTrayIcon;
             AutoUploadConfigKeys = Settings.AutoUploadConfigKeys;
+            BasementAutoUploadConfigKeys = Settings.BasementAutoUploadConfigKeys;
             ConfirmBeforeDelete = Settings.ConfirmBeforeDelete;
             ConfirmBeforeUninstall = Settings.ConfirmBeforeUninstall;
             StorePageSize = Settings.StorePageSize;
@@ -279,6 +306,11 @@ namespace SolusManifestApp.ViewModels
 
             // Set theme
             SelectedThemeName = Settings.Theme.ToString();
+
+            // Load Store Provider settings
+            SelectedStore = Settings.SelectedStore.ToString();
+            BasementApiKey = Settings.BasementApiKey;
+            BasementApiUrl = Settings.BasementApiUrl;
 
             // Load Config VDF Extractor settings
             ConfigVdfPath = Settings.ConfigVdfPath;
@@ -323,6 +355,7 @@ namespace SolusManifestApp.ViewModels
             Settings.StartMinimized = StartMinimized;
             Settings.AlwaysShowTrayIcon = AlwaysShowTrayIcon;
             Settings.AutoUploadConfigKeys = AutoUploadConfigKeys;
+            Settings.BasementAutoUploadConfigKeys = BasementAutoUploadConfigKeys;
             Settings.ConfirmBeforeDelete = ConfirmBeforeDelete;
             Settings.ConfirmBeforeUninstall = ConfirmBeforeUninstall;
             Settings.StorePageSize = StorePageSize;
@@ -336,6 +369,14 @@ namespace SolusManifestApp.ViewModels
             {
                 Settings.Theme = theme;
             }
+
+            // Parse and save store provider
+            if (Enum.TryParse<StoreProvider>(SelectedStore, out var storeProvider))
+            {
+                Settings.SelectedStore = storeProvider;
+            }
+            Settings.BasementApiKey = BasementApiKey;
+            Settings.BasementApiUrl = BasementApiUrl;
 
             // Save Config VDF Extractor settings
             Settings.ConfigVdfPath = ConfigVdfPath;
@@ -458,6 +499,45 @@ namespace SolusManifestApp.ViewModels
             {
                 StatusMessage = $"Error: {ex.Message}";
                 _notificationService.ShowError($"Failed to validate API key: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async System.Threading.Tasks.Task ValidateBasementApiKey()
+        {
+            if (string.IsNullOrWhiteSpace(BasementApiKey))
+            {
+                _notificationService.ShowWarning("Please enter a Basement API key");
+                return;
+            }
+
+            if (!_basementApiService.ValidateApiKey(BasementApiKey))
+            {
+                _notificationService.ShowWarning("Please enter a valid Basement API key");
+                return;
+            }
+
+            StatusMessage = "Testing Basement API key...";
+
+            try
+            {
+                var isValid = await _basementApiService.TestApiKeyAsync(BasementApiKey);
+
+                if (isValid)
+                {
+                    StatusMessage = "Basement API key is valid";
+                    _notificationService.ShowSuccess("Basement API key is valid!");
+                }
+                else
+                {
+                    StatusMessage = "Basement API key is invalid";
+                    _notificationService.ShowError("Basement API key is invalid or Basement server is unreachable");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                StatusMessage = $"Error: {ex.Message}";
+                _notificationService.ShowError($"Failed to validate Basement API key: {ex.Message}");
             }
         }
 

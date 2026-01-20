@@ -14,6 +14,7 @@ namespace SolusManifestApp.Models
         public string IconUrl { get; set; } = string.Empty;
         public bool IsInstalled { get; set; }
         public string LocalPath { get; set; } = string.Empty;
+        public string FilePath { get; set; } = string.Empty; // Used for backup functionality
 
         public string SizeFormatted => FormatBytes(SizeBytes);
 

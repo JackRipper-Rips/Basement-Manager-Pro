@@ -1,6 +1,7 @@
 using SolusManifestApp.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SolusManifestApp.Interfaces;
 using SolusManifestApp.Models;
 using SolusManifestApp.Services;
 using System;
@@ -15,7 +16,7 @@ namespace SolusManifestApp.ViewModels
 {
     public partial class StoreViewModel : ObservableObject
     {
-        private readonly ManifestApiService _manifestApiService;
+        private readonly IManifestApiService _manifestApiService;
         private readonly DownloadService _downloadService;
         private readonly SettingsService _settingsService;
         private readonly CacheService _cacheService;
@@ -68,12 +69,48 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<int> _pageNumbers = new();
 
+        [ObservableProperty]
+        private string _currentStore = string.Empty;
+
         private int PageSize => _settingsService.LoadSettings().StorePageSize;
 
         public Action? ScrollToTopAction { get; set; }
 
+        /// <summary>
+        /// Gets the correct API key based on the selected store provider
+        /// </summary>
+        private string GetActiveApiKey()
+        {
+            var settings = _settingsService.LoadSettings();
+            return settings.SelectedStore == StoreProvider.Basement
+                ? settings.BasementApiKey
+                : settings.ApiKey;
+        }
+
+        /// <summary>
+        /// Gets the correct base URL based on the selected store provider
+        /// </summary>
+        private string GetActiveBaseUrl()
+        {
+            var settings = _settingsService.LoadSettings();
+            return settings.SelectedStore == StoreProvider.Basement
+                ? settings.BasementApiUrl
+                : "https://manifest.morrenus.xyz/api/v1";
+        }
+
+        /// <summary>
+        /// Updates the current store display name
+        /// </summary>
+        private void UpdateCurrentStore()
+        {
+            var settings = _settingsService.LoadSettings();
+            CurrentStore = settings.SelectedStore == StoreProvider.Basement
+                ? "Basement Store"
+                : "Morrenus Store";
+        }
+
         public StoreViewModel(
-            ManifestApiService manifestApiService,
+            IManifestApiService manifestApiService,
             DownloadService downloadService,
             SettingsService settingsService,
             CacheService cacheService,
@@ -95,7 +132,9 @@ namespace SolusManifestApp.ViewModels
         {
             var settings = _settingsService.LoadSettings();
             IsListView = settings.StoreListView;
-            if (!string.IsNullOrEmpty(settings.ApiKey))
+            UpdateCurrentStore();
+            var apiKey = GetActiveApiKey();
+            if (!string.IsNullOrEmpty(apiKey))
             {
                 await LoadGamesAsync();
             }
@@ -107,8 +146,9 @@ namespace SolusManifestApp.ViewModels
 
         public void OnNavigatedTo()
         {
-            var settings = _settingsService.LoadSettings();
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            UpdateCurrentStore();
+            var apiKey = GetActiveApiKey();
+            if (string.IsNullOrEmpty(apiKey))
             {
                 // Show warning popup when user navigates to Store without API key
                 Application.Current.Dispatcher.InvokeAsync(() =>
@@ -143,9 +183,9 @@ namespace SolusManifestApp.ViewModels
         [RelayCommand]
         private async Task LoadGames()
         {
-            var settings = _settingsService.LoadSettings();
+            var apiKey = GetActiveApiKey();
 
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
                 StatusMessage = "Please enter API key in settings";
                 MessageBoxHelper.Show(
@@ -249,9 +289,9 @@ namespace SolusManifestApp.ViewModels
         [RelayCommand]
         private async Task SearchGames()
         {
-            var settings = _settingsService.LoadSettings();
+            var apiKey = GetActiveApiKey();
 
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
                 StatusMessage = "Please enter API key in settings";
                 return;
@@ -276,7 +316,7 @@ namespace SolusManifestApp.ViewModels
 
             try
             {
-                var result = await _manifestApiService.SearchLibraryAsync(SearchQuery, settings.ApiKey, 100);
+                var result = await _manifestApiService.SearchLibraryAsync(SearchQuery, apiKey, 100);
 
                 if (result != null && result.Results.Count > 0)
                 {
@@ -337,8 +377,9 @@ namespace SolusManifestApp.ViewModels
         private async Task LoadGamesAsync()
         {
             var settings = _settingsService.LoadSettings();
+            var apiKey = GetActiveApiKey();
 
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
                 StatusMessage = "Please enter API key in settings";
                 return;
@@ -350,7 +391,7 @@ namespace SolusManifestApp.ViewModels
             try
             {
                 var result = await _manifestApiService.GetLibraryAsync(
-                    settings.ApiKey,
+                    apiKey,
                     limit: PageSize,
                     offset: CurrentOffset,
                     sortBy: SortBy);
@@ -445,8 +486,9 @@ namespace SolusManifestApp.ViewModels
         private async Task DownloadGame(LibraryGame game)
         {
             var settings = _settingsService.LoadSettings();
+            var apiKey = GetActiveApiKey();
 
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
                 MessageBoxHelper.Show(
                     "Please enter API key in settings",
@@ -468,6 +510,8 @@ namespace SolusManifestApp.ViewModels
 
             try
             {
+                var baseUrl = GetActiveBaseUrl();
+
                 // Create a manifest object for download
                 var manifest = new Manifest
                 {
@@ -475,11 +519,11 @@ namespace SolusManifestApp.ViewModels
                     Name = game.GameName,
                     IconUrl = game.HeaderImage,
                     Size = game.ManifestSize ?? 0,
-                    DownloadUrl = $"https://manifest.morrenus.xyz/api/v1/manifest/{game.GameId}"
+                    DownloadUrl = $"{baseUrl}/manifest/{game.GameId}"
                 };
 
                 StatusMessage = $"Downloading: {game.GameName}";
-                var zipFilePath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, settings.ApiKey);
+                var zipFilePath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, apiKey);
 
                 StatusMessage = $"{game.GameName} downloaded successfully";
 
@@ -504,8 +548,9 @@ namespace SolusManifestApp.ViewModels
         private async Task UpdateGame(LibraryGame game)
         {
             var settings = _settingsService.LoadSettings();
+            var apiKey = GetActiveApiKey();
 
-            if (string.IsNullOrEmpty(settings.ApiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
                 MessageBoxHelper.Show(
                     "Please enter API key in settings",
@@ -521,7 +566,7 @@ namespace SolusManifestApp.ViewModels
                     $"Manifest for '{game.GameName}' is not available yet.",
                     "Not Available",
                     MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    MessageBoxImage.Warning);
                 return;
             }
 
@@ -538,17 +583,19 @@ namespace SolusManifestApp.ViewModels
 
             try
             {
+                var baseUrl = GetActiveBaseUrl();
+
                 var manifest = new Manifest
                 {
                     AppId = game.GameId,
                     Name = game.GameName,
                     IconUrl = game.HeaderImage,
                     Size = game.ManifestSize ?? 0,
-                    DownloadUrl = $"https://manifest.morrenus.xyz/api/v1/manifest/{game.GameId}"
+                    DownloadUrl = $"{baseUrl}/manifest/{game.GameId}"
                 };
 
                 StatusMessage = $"Downloading update: {game.GameName}";
-                var zipFilePath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, settings.ApiKey);
+                var zipFilePath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, apiKey);
 
                 StatusMessage = $"{game.GameName} update downloaded";
 

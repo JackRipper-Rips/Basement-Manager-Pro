@@ -15,9 +15,9 @@ namespace SolusManifestApp.Services
         public LibraryDatabaseService(LoggerService? logger = null)
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var dbFolder = Path.Combine(appData, "SolusManifestApp");
+            var dbFolder = Path.Combine(appData, "BasementManagerPro");
             Directory.CreateDirectory(dbFolder);
-            _dbPath = Path.Combine(appData, "SolusManifestApp", "library.db");
+            _dbPath = Path.Combine(appData, "BasementManagerPro", "library.db");
             _logger = logger;
 
             _logger?.Info($"Database path: {_dbPath}");

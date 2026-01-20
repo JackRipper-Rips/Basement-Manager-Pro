@@ -6,11 +6,11 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <AssemblyName>SolusManifestApp</AssemblyName>
+    <AssemblyName>BasementManagerPro</AssemblyName>
     <RootNamespace>SolusManifestApp</RootNamespace>
     <Version Condition="'$(Version)' == ''">0.0.0.0</Version>
-    <Authors>Solus</Authors>
-    <Description>Solus Manifest App</Description>
+    <Authors>Basement Manager Pro</Authors>
+    <Description>Basement Manager Pro - Game Manifest and Steam Library Manager</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Self-contained single-file publishing -->

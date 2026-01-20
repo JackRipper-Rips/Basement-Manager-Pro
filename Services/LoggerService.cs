@@ -13,11 +13,11 @@ namespace SolusManifestApp.Services
         private const long MAX_LOG_SIZE = 8 * 1024 * 1024; // 8MB
         private const long TRIM_TO_SIZE = 6 * 1024 * 1024; // Trim to 6MB when rotating
 
-        public LoggerService(string logName = "SolusManifestApp")
+        public LoggerService(string logName = "BasementManagerPro")
         {
             var appDataPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SolusManifestApp"
+                "BasementManagerPro"
             );
             Directory.CreateDirectory(appDataPath);
 
@@ -102,7 +102,7 @@ namespace SolusManifestApp.Services
         {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SolusManifestApp"
+                "BasementManagerPro"
             );
         }
 

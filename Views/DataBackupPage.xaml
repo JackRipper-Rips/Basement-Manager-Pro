@@ -1,0 +1,313 @@
+<UserControl x:Class="SolusManifestApp.Views.DataBackupPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1000">
+    <Grid Background="{DynamicResource PrimaryDarkBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="30" MaxWidth="900">
+                <!-- Header -->
+                <TextBlock Text="Backup &amp; Restore"
+                          FontSize="32"
+                          FontWeight="Bold"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          Margin="0,0,0,10"/>
+
+                <TextBlock Text="Backup and restore your Steam data, or reset achievements"
+                          FontSize="14"
+                          Foreground="{DynamicResource TextSecondaryBrush}"
+                          Margin="0,0,0,30"/>
+
+                <!-- Current User Info -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,30">
+                    <StackPanel>
+                        <TextBlock Text="👤 Current Steam User"
+                                  FontSize="16"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                  Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🙍‍♂️ " FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding CurrentUser}"
+                                      FontSize="14"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <TextBlock Text="🔢 Account ID: " FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding AccountId}"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Playtime Section -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="⏱️ Playtime Data"
+                                      FontSize="18"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="Backup and restore your game playtime hours"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="File: userdata\&lt;AccountID&gt;\config\localconfig.vdf"
+                                      FontSize="11"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="💾 Backup"
+                                   Style="{StaticResource PrimaryButtonStyle}"
+                                   Command="{Binding BackupPlaytimeCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"
+                                   Margin="0,0,10,0"/>
+                            <Button Content="📥 Restore"
+                                   Style="{StaticResource SecondaryButtonStyle}"
+                                   Command="{Binding RestorePlaytimeCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Achievements Section -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="🏆 Achievements"
+                                      FontSize="18"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="Backup and restore all your game achievements"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="Files: appcache\stats\UserGameStats_*.bin"
+                                      FontSize="11"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="💾 Backup"
+                                   Style="{StaticResource PrimaryButtonStyle}"
+                                   Command="{Binding BackupAchievementsCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"
+                                   Margin="0,0,10,0"/>
+                            <Button Content="📥 Restore"
+                                   Style="{StaticResource SecondaryButtonStyle}"
+                                   Command="{Binding RestoreAchievementsCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Added Games Section -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="🎮 Added Games (stplug-in)"
+                                      FontSize="18"
+                                      FontWeight="SemiBold"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="Backup and restore your installed .lua game files"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="Files: config\stplug-in\*.lua"
+                                      FontSize="11"
+                                      Foreground="{DynamicResource TextSecondaryBrush}"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="💾 Backup"
+                                   Style="{StaticResource PrimaryButtonStyle}"
+                                   Command="{Binding BackupAddedGamesCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"
+                                   Margin="0,0,10,0"/>
+                            <Button Content="📥 Restore"
+                                   Style="{StaticResource SecondaryButtonStyle}"
+                                   Command="{Binding RestoreAddedGamesCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="120"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Reset Achievements Section -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="🗑️ Reset Achievements"
+                                          FontSize="18"
+                                          FontWeight="SemiBold"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,0,0,5"/>
+                                <TextBlock Text="Reset achievements for specific games (cannot be undone)"
+                                          FontSize="12"
+                                          Foreground="{DynamicResource WarningBrush}"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                   Content="🔄 Load Games"
+                                   Style="{StaticResource SecondaryButtonStyle}"
+                                   Command="{Binding LoadGamesForResetCommand}"
+                                   IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                   Width="140"
+                                   VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Games List -->
+                        <Border Background="{DynamicResource PrimaryDarkBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Height="250"
+                                Margin="0,0,0,15">
+                            <Grid>
+                                <ListBox ItemsSource="{Binding GamesWithAchievements}"
+                                        SelectionMode="Multiple"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="5">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5">
+                                                <TextBlock Text="🏆" FontSize="14" Margin="0,0,10,0" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding Name}"
+                                                          FontSize="13"
+                                                          Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding AppId, StringFormat=' (AppID: {0})'}"
+                                                          FontSize="11"
+                                                          Foreground="{DynamicResource TextSecondaryBrush}"
+                                                          Margin="5,0,0,0"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+
+                                    <!-- Sync SelectedItems to ViewModel -->
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                            <EventSetter Event="Selected" Handler="OnGameSelected"/>
+                                            <EventSetter Event="Unselected" Handler="OnGameUnselected"/>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+
+                                <!-- Empty State -->
+                                <TextBlock Text="Click 'Load Games' to see games with achievements"
+                                          FontSize="13"
+                                          Foreground="{DynamicResource TextSecondaryBrush}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Visibility="{Binding GamesWithAchievements.Count, Converter={StaticResource CountToVisibilityConverter}}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Action Buttons -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                      VerticalAlignment="Center"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource TextSecondaryBrush}">
+                                <Run Text="⚠️ Steam must be closed before resetting achievements"/>
+                            </TextBlock>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="🗑️ Reset Selected"
+                                       Style="{StaticResource WarningButtonStyle}"
+                                       Command="{Binding ResetSelectedAchievementsCommand}"
+                                       IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                       Width="150"
+                                       Margin="0,0,10,0"/>
+                                <Button Content="🧹 Clear All"
+                                       Style="{StaticResource DangerButtonStyle}"
+                                       Command="{Binding ClearAllAchievementsCommand}"
+                                       IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBooleanConverter}}"
+                                       Width="120"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Loading Indicator -->
+                <Border Background="#80000000"
+                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="0,20,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="⌛ Processing..."
+                                  FontSize="16"
+                                  FontWeight="SemiBold"
+                                  Foreground="White"
+                                  HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

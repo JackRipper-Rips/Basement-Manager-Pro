@@ -10,12 +10,12 @@
 
             <!-- Header -->
             <StackPanel Grid.Row="0" Margin="0,0,0,30">
-                <TextBlock Text="Solus Manifest App"
+                <TextBlock Text="Basement Manager Pro"
                            FontSize="48"
                            FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Steam Depot Manager &amp; Tools"
+                <TextBlock Text="Steam Data Manager &amp; Backup Tools"
                            FontSize="16"
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"

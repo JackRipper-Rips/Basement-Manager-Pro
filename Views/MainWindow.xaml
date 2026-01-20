@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewmodels="clr-namespace:SolusManifestApp.ViewModels"
         xmlns:views="clr-namespace:SolusManifestApp.Views"
-        Title="Solus Manifest App"
+        Title="Basement Manager Pro"
         Height="900"
         Width="1200"
         MinHeight="600"
@@ -47,7 +47,7 @@
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center"
                                 Margin="12,0">
-                        <TextBlock Text="Solus Manifest App"
+                        <TextBlock Text="Basement Manager Pro"
                                    FontSize="14"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
@@ -243,6 +243,15 @@
                                 <TextBlock Text="Tools" FontSize="13"/>
                             </StackPanel>
                         </Button>
+                        
+                        <Button Style="{StaticResource NavButtonStyle}"
+                                Command="{Binding NavigateToDataBackupCommand}"
+                                Tag="{Binding CurrentPageName, Converter={StaticResource PageNameToTagConverter}, ConverterParameter=DataBackup}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💾" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="Data Backup" FontSize="13"/>
+                            </StackPanel>
+                        </Button>
 
                         <Separator Background="{DynamicResource CardBackgroundBrush}"
                                    Margin="3,12"/>
@@ -264,6 +273,7 @@
                                 <TextBlock Text="Support" FontSize="13"/>
                             </StackPanel>
                         </Button>
+
                     </StackPanel>
 
                     <!-- Bottom Actions -->

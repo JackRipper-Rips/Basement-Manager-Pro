@@ -47,7 +47,7 @@ namespace SolusManifestApp.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private const string GitHubApiUrl = "https://api.github.com/repos/{owner}/{repo}/releases/latest";
-        private const string Owner = "MorrenusGames";
+        private const string Owner = "JackRipper-Rips";
         private const string Repo = "Solus-Manifest-App";
 
         public UpdateService(IHttpClientFactory httpClientFactory)
@@ -110,9 +110,9 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                // Find the SolusManifestApp.exe asset (no longer zipped)
+                // Find the BasementManagerPro.exe asset (no longer zipped)
                 var exeAsset = updateInfo.Assets
-                    .FirstOrDefault(a => a.Name.Equals("SolusManifestApp.exe", StringComparison.OrdinalIgnoreCase));
+                    .FirstOrDefault(a => a.Name.Equals("BasementManagerPro.exe", StringComparison.OrdinalIgnoreCase));
 
                 if (exeAsset == null)
                 {
@@ -128,7 +128,7 @@ namespace SolusManifestApp.Services
                     return null;
                 }
 
-                var tempExePath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.exe");
+                var tempExePath = Path.Combine(Path.GetTempPath(), "BasementManagerPro_Update.exe");
 
                 // Download EXE directly
                 var client = CreateClient();
@@ -171,8 +171,8 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                var tempZipPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.zip");
-                var tempExtractPath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update_Extract");
+                var tempZipPath = Path.Combine(Path.GetTempPath(), "BasementManagerPro_Update.zip");
+                var tempExtractPath = Path.Combine(Path.GetTempPath(), "BasementManagerPro_Update_Extract");
 
                 // Download ZIP
                 var client = CreateClient();
@@ -212,7 +212,7 @@ namespace SolusManifestApp.Services
                 ZipFile.ExtractToDirectory(tempZipPath, tempExtractPath);
 
                 // Find the exe in extracted files
-                var exePath = Directory.GetFiles(tempExtractPath, "SolusManifestApp.exe", SearchOption.AllDirectories).FirstOrDefault();
+                var exePath = Directory.GetFiles(tempExtractPath, "BasementManagerPro.exe", SearchOption.AllDirectories).FirstOrDefault();
 
                 if (string.IsNullOrEmpty(exePath))
                 {
@@ -220,7 +220,7 @@ namespace SolusManifestApp.Services
                 }
 
                 // Move exe to final temp location
-                var finalExePath = Path.Combine(Path.GetTempPath(), "SolusManifestApp_Update.exe");
+                var finalExePath = Path.Combine(Path.GetTempPath(), "BasementManagerPro_Update.exe");
                 if (File.Exists(finalExePath))
                 {
                     File.Delete(finalExePath);
@@ -248,7 +248,7 @@ namespace SolusManifestApp.Services
                     return;
 
                 // Create a batch script to replace the exe after the app closes
-                var batchPath = Path.Combine(Path.GetTempPath(), "update_solus.bat");
+                var batchPath = Path.Combine(Path.GetTempPath(), "update_basement.bat");
                 var batchContent = $@"
 @echo off
 timeout /t 2 /nobreak > nul

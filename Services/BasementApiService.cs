@@ -8,22 +8,29 @@ using System.Threading.Tasks;
 
 namespace SolusManifestApp.Services
 {
-    public class ManifestApiService : IManifestApiService
+    public class BasementApiService : IManifestApiService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly CacheService? _cacheService;
-        private const string BaseUrl = "https://manifest.morrenus.xyz/api/v1";
+        private readonly SettingsService _settingsService;
         private readonly TimeSpan _statusCacheExpiration = TimeSpan.FromMinutes(5); // Cache status for 5 minutes
 
-        public ManifestApiService(IHttpClientFactory httpClientFactory, CacheService? cacheService = null)
+        public BasementApiService(IHttpClientFactory httpClientFactory, SettingsService settingsService, CacheService? cacheService = null)
         {
             _httpClientFactory = httpClientFactory;
+            _settingsService = settingsService;
             _cacheService = cacheService;
+        }
+
+        private string GetBaseUrl()
+        {
+            var settings = _settingsService.LoadSettings();
+            return settings.BasementApiUrl;
         }
 
         private HttpClient CreateClient()
         {
-            var client = _httpClientFactory.CreateClient("Morrenus");
+            var client = _httpClientFactory.CreateClient("Basement");
             client.Timeout = TimeSpan.FromSeconds(30);
             return client;
         }
@@ -33,14 +40,15 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/manifest/{appId}?api_key={apiKey}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/manifest/{appId}?api_key={apiKey}";
                 var response = await client.GetAsync(url);
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var preview = json.Length > 200 ? json.Substring(0, 200) : json;
-                    throw new Exception($"Manifest not available for App ID {appId}. API returned {response.StatusCode}: {preview}");
+                    throw new Exception($"Manifest not available for App ID {appId}. Basement API returned {response.StatusCode}: {preview}");
                 }
 
                 try
@@ -51,12 +59,12 @@ namespace SolusManifestApp.Services
                 catch (JsonException jex)
                 {
                     var preview = json.Length > 200 ? json.Substring(0, 200) : json;
-                    throw new Exception($"Invalid JSON from API for App ID {appId}. Response: {preview}", jex);
+                    throw new Exception($"Invalid JSON from Basement API for App ID {appId}. Response: {preview}", jex);
                 }
             }
             catch (Exception ex) when (ex is not JsonException)
             {
-                throw new Exception($"Failed to fetch manifest for {appId}: {ex.Message}", ex);
+                throw new Exception($"Failed to fetch manifest for {appId} from Basement: {ex.Message}", ex);
             }
         }
 
@@ -65,12 +73,13 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/search?q={Uri.EscapeDataString(query)}&api_key={apiKey}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/search?q={Uri.EscapeDataString(query)}&api_key={apiKey}";
                 var response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"API returned {response.StatusCode}");
+                    throw new Exception($"Basement API returned {response.StatusCode}");
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -79,7 +88,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to search games: {ex.Message}", ex);
+                throw new Exception($"Failed to search games in Basement: {ex.Message}", ex);
             }
         }
 
@@ -88,12 +97,13 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/games?api_key={apiKey}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/games?api_key={apiKey}";
                 var response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"API returned {response.StatusCode}");
+                    throw new Exception($"Basement API returned {response.StatusCode}");
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -102,13 +112,14 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to fetch games list: {ex.Message}", ex);
+                throw new Exception($"Failed to fetch games list from Basement: {ex.Message}", ex);
             }
         }
 
         public bool ValidateApiKey(string apiKey)
         {
-            return !string.IsNullOrWhiteSpace(apiKey) && apiKey.StartsWith("smm", StringComparison.OrdinalIgnoreCase);
+            // Basement store accepts any non-empty API key
+            return !string.IsNullOrWhiteSpace(apiKey);
         }
 
         public async Task<bool> TestApiKeyAsync(string apiKey)
@@ -116,7 +127,8 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/status/10?api_key={apiKey}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/status/10?api_key={apiKey}";
                 var response = await client.GetAsync(url);
                 return response.IsSuccessStatusCode;
             }
@@ -148,7 +160,8 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/status/{appId}?api_key={apiKey}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/status/{appId}?api_key={apiKey}";
                 var response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -166,7 +179,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to fetch status for {appId}: {ex.Message}", ex);
+                throw new Exception($"Failed to fetch status for {appId} from Basement: {ex.Message}", ex);
             }
         }
 
@@ -175,7 +188,8 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/library?api_key={apiKey}&limit={limit}&offset={offset}&sort_by={sortBy}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/library?api_key={apiKey}&limit={limit}&offset={offset}&sort_by={sortBy}";
                 if (!string.IsNullOrEmpty(search))
                 {
                     url += $"&search={Uri.EscapeDataString(search)}";
@@ -185,7 +199,7 @@ namespace SolusManifestApp.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"API returned {response.StatusCode}");
+                    throw new Exception($"Basement API returned {response.StatusCode}");
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -194,7 +208,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to fetch library: {ex.Message}", ex);
+                throw new Exception($"Failed to fetch library from Basement: {ex.Message}", ex);
             }
         }
 
@@ -203,12 +217,13 @@ namespace SolusManifestApp.Services
             try
             {
                 var client = CreateClient();
-                var url = $"{BaseUrl}/search?q={Uri.EscapeDataString(query)}&api_key={apiKey}&limit={limit}";
+                var baseUrl = GetBaseUrl();
+                var url = $"{baseUrl}/search?q={Uri.EscapeDataString(query)}&api_key={apiKey}&limit={limit}";
                 var response = await client.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"API returned {response.StatusCode}");
+                    throw new Exception($"Basement API returned {response.StatusCode}");
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -217,7 +232,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to search library: {ex.Message}", ex);
+                throw new Exception($"Failed to search library in Basement: {ex.Message}", ex);
             }
         }
     }

@@ -13,23 +13,25 @@ namespace SolusManifestApp.Services
         private readonly FileInstallService _fileInstallService;
         private readonly SettingsService _settingsService;
         private readonly NotificationService _notificationService;
-        private readonly ManifestApiService _manifestApiService;
+        private readonly StoreApiFactory _storeApiFactory;
         private readonly SteamApiService _steamApiService;
+        private readonly LoggerService _logger;
 
         public ProtocolHandlerService(
             DownloadService downloadService,
             FileInstallService fileInstallService,
             SettingsService settingsService,
             NotificationService notificationService,
-            ManifestApiService manifestApiService,
+            StoreApiFactory storeApiFactory,
             SteamApiService steamApiService)
         {
             _downloadService = downloadService;
             _fileInstallService = fileInstallService;
             _settingsService = settingsService;
             _notificationService = notificationService;
-            _manifestApiService = manifestApiService;
+            _storeApiFactory = storeApiFactory;
             _steamApiService = steamApiService;
+            _logger = new LoggerService("ProtocolHandler");
         }
 
         public async Task HandleProtocolAsync(string protocolPath)
@@ -68,31 +70,48 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                var settings = _settingsService.LoadSettings();
+                _logger.Log("INFO", $"Protocol: HandleDownload called for App ID: {appId}");
 
-                if (string.IsNullOrEmpty(settings.ApiKey))
+                var settings = _settingsService.LoadSettings();
+                var apiKey = _storeApiFactory.GetActiveApiKey();
+
+                _logger.Log("INFO", $"Protocol: Using store: {settings.SelectedStore}, API Key length: {apiKey?.Length ?? 0}");
+
+                if (string.IsNullOrEmpty(apiKey))
                 {
+                    _logger.Log("ERROR", "Protocol: No API key configured");
                     _notificationService.ShowError("API key not configured. Please set it in Settings.");
                     return;
                 }
 
                 _notificationService.ShowNotification("Download Started", $"Starting download for App ID: {appId}", NotificationType.Info);
 
+                _logger.Log("INFO", $"Protocol: Building manifest for App ID: {appId}");
+
+                // Build manifest manually (like StoreViewModel does)
+                // The Basement API's /manifest/{appId} returns the ZIP file directly, not JSON
+                var baseUrl = settings.SelectedStore == StoreProvider.Basement
+                    ? settings.BasementApiUrl
+                    : "https://manifest.morrenus.xyz/api/v1";
+
                 var manifest = new Manifest
                 {
                     AppId = appId,
                     Name = $"App {appId}",
-                    IconUrl = "",
+                    IconUrl = string.Empty,
                     Size = 0,
-                    DownloadUrl = $"https://manifest.morrenus.xyz/api/v1/manifest/{appId}"
+                    DownloadUrl = $"{baseUrl}/manifest/{appId}"
                 };
 
-                await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, settings.ApiKey);
+                _logger.Log("INFO", $"Protocol: Manifest built. Name: {manifest.Name}, DownloadUrl: {manifest.DownloadUrl}");
+
+                await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, apiKey);
 
                 _notificationService.ShowSuccess($"Download completed for App ID: {appId}");
             }
             catch (Exception ex)
             {
+                _logger.Log("ERROR", $"Protocol: Download failed for App ID {appId}: {ex.Message}\nStack: {ex.StackTrace}");
                 _notificationService.ShowError($"Download failed for App ID {appId}: {ex.Message}");
             }
         }
@@ -127,26 +146,42 @@ namespace SolusManifestApp.Services
         {
             try
             {
-                var settings = _settingsService.LoadSettings();
+                _logger.Log("INFO", $"Protocol: HandleDownloadAndInstall called for App ID: {appId}");
 
-                if (string.IsNullOrEmpty(settings.ApiKey))
+                var settings = _settingsService.LoadSettings();
+                var apiKey = _storeApiFactory.GetActiveApiKey();
+
+                _logger.Log("INFO", $"Protocol: Using store: {settings.SelectedStore}, API Key length: {apiKey?.Length ?? 0}");
+
+                if (string.IsNullOrEmpty(apiKey))
                 {
+                    _logger.Log("ERROR", "Protocol: No API key configured");
                     _notificationService.ShowError("API key not configured. Please set it in Settings.");
                     return;
                 }
 
                 _notificationService.ShowNotification("Download & Install", $"Starting download and install for App ID: {appId}", NotificationType.Info);
 
+                _logger.Log("INFO", $"Protocol: Building manifest for App ID: {appId}");
+
+                // Build manifest manually (like StoreViewModel does)
+                // The Basement API's /manifest/{appId} returns the ZIP file directly, not JSON
+                var baseUrl = settings.SelectedStore == StoreProvider.Basement
+                    ? settings.BasementApiUrl
+                    : "https://manifest.morrenus.xyz/api/v1";
+
                 var manifest = new Manifest
                 {
                     AppId = appId,
                     Name = $"App {appId}",
-                    IconUrl = "",
+                    IconUrl = string.Empty,
                     Size = 0,
-                    DownloadUrl = $"https://manifest.morrenus.xyz/api/v1/manifest/{appId}"
+                    DownloadUrl = $"{baseUrl}/manifest/{appId}"
                 };
 
-                var zipPath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, settings.ApiKey);
+                _logger.Log("INFO", $"Protocol: Manifest built. Name: {manifest.Name}, DownloadUrl: {manifest.DownloadUrl}");
+
+                var zipPath = await _downloadService.DownloadGameFileOnlyAsync(manifest, settings.DownloadsPath, apiKey);
 
                 _notificationService.ShowNotification("Download Complete", $"Download completed, now installing App ID: {appId}", NotificationType.Info);
 
@@ -157,6 +192,7 @@ namespace SolusManifestApp.Services
             }
             catch (Exception ex)
             {
+                _logger.Log("ERROR", $"Protocol: Download/Install failed for App ID {appId}: {ex.Message}\nStack: {ex.StackTrace}");
                 _notificationService.ShowError($"Download/Install failed for App ID {appId}: {ex.Message}");
             }
         }

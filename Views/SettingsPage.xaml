@@ -66,23 +66,101 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel MaxWidth="800" HorizontalAlignment="Left" Margin="0,20,0,0">
 
-                        <!-- Manifest API Configuration -->
+                        <!-- Store Provider Selection -->
                         <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20">
                             <StackPanel>
-                                <TextBlock Text="Solus API Key"
+                                <TextBlock Text="Store Provider"
                                            FontSize="20"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            Margin="0,0,0,15"/>
 
-                                <TextBlock Text="Solus API Key (must start with 'smm')"
+                                <TextBlock Text="Select which store API to use"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+
+                                <ComboBox SelectedValue="{Binding SelectedStore}"
+                                          SelectedValuePath="Tag"
+                                          FontSize="14"
+                                          Margin="0,0,0,0">
+                                    <ComboBoxItem Content="Basement (Default)" Tag="Basement"/>
+                                    <ComboBoxItem Content="Morrenus (Original)" Tag="Morrenus"/>
+                                </ComboBox>
+
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Basement API Configuration -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20" Visibility="{Binding IsBasementSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="Basement API Key"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Basement API Key"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,0,0,5"/>
                                 <TextBlock TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="11"
                                            Margin="0,0,0,10">
-                                    <Run Text="How to get your Solus API key:"/>
+                                    <Run Text="How to get your Basement API key:"/>
+                                    <LineBreak/>
+                                    <Run Text="1. The Basement API server is at: http://steamgames.freeddns.org:8881/api/v1"/>
+                                    <LineBreak/>
+                                    <Run Text="2. Generate an API key from your Basement server dashboard"/>
+                                    <LineBreak/>
+                                    <Run Text="3. Paste the API key below and click Validate"/>
+                                    <LineBreak/>
+                                    <Run Text="4. The Basement API provides the same features as Morrenus"/>
+                                </TextBlock>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Grid.Column="0"
+                                             Text="{Binding BasementApiKey, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,10,0"/>
+                                    <Button Grid.Column="1"
+                                            Content="Validate"
+                                            Command="{Binding ValidateBasementApiKeyCommand}"
+                                            Padding="20,8"/>
+                                </Grid>
+
+                                <TextBlock Text="{Binding StatusMessage}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           FontSize="12"
+                                           Margin="0,5,0,0"/>
+                                <CheckBox Content="Automatically upload new config keys to Basement (helps improve your server's database)"
+                                          IsChecked="{Binding BasementAutoUploadConfigKeys}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          Margin="0,15,0,0"
+                                          ToolTip="Extracts depot keys from your Steam config.vdf and uploads only new keys that don't already exist on the Basement server. Runs automatically every hour while the app is open. Requires a valid API key."/>
+
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Morrenus API Configuration -->
+                        <Border Style="{StaticResource ModernCardStyle}" Margin="0,0,0,20" Visibility="{Binding IsMorrenusSelected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="Morrenus API Key"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Morrenus API Key (must start with 'smm')"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontSize="11"
+                                           Margin="0,0,0,10">
+                                    <Run Text="How to get your Morrenus API key:"/>
                                     <LineBreak/>
                                     <Run Text="1. Go to "/>
                                     <Hyperlink NavigateUri="https://manifest.morrenus.xyz/"

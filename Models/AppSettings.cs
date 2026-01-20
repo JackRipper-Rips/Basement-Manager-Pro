@@ -28,11 +28,23 @@ namespace SolusManifestApp.Models
         AutoDownloadAndInstall
     }
 
+    public enum StoreProvider
+    {
+        Basement,
+        Morrenus
+    }
+
     public class AppSettings
     {
         // API & Authentication
         public string ApiKey { get; set; } = string.Empty;
         public List<string> ApiKeyHistory { get; set; } = new List<string>();
+
+        // Store Provider Selection
+        public StoreProvider SelectedStore { get; set; } = StoreProvider.Basement;
+        public string BasementApiKey { get; set; } = string.Empty;
+        public List<string> BasementApiKeyHistory { get; set; } = new List<string>();
+        public string BasementApiUrl { get; set; } = "http://steamgames.freeddns.org:8881/api/v1";
 
         // Steam Configuration
         public string SteamPath { get; set; } = string.Empty;
@@ -40,12 +52,16 @@ namespace SolusManifestApp.Models
 
         // Downloads & Installation
         public string DownloadsPath { get; set; } = string.Empty;
-        public bool AutoInstallAfterDownload { get; set; } = false;
+        public bool AutoInstallAfterDownload { get; set; } = true;
         public bool DeleteZipAfterInstall { get; set; } = true;
 
-        // Key Upload
-        public bool AutoUploadConfigKeys { get; set; } = true;
+        // Key Upload (Morrenus)
+        public bool AutoUploadConfigKeys { get; set; } = false;
         public DateTime LastConfigKeysUpload { get; set; } = DateTime.MinValue;
+
+        // Key Upload (Basement)
+        public bool BasementAutoUploadConfigKeys { get; set; } = true;
+        public DateTime BasementLastConfigKeysUpload { get; set; } = DateTime.MinValue;
 
         // Application Behavior
         public bool MinimizeToTray { get; set; } = true;

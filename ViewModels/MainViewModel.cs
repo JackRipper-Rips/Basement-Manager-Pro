@@ -33,6 +33,7 @@ namespace SolusManifestApp.ViewModels
         public ToolsViewModel ToolsViewModel { get; }
         public SettingsViewModel SettingsViewModel { get; }
         public SupportViewModel SupportViewModel { get; }
+        public DataBackupViewModel DataBackupViewModel { get; }
 
         public MainViewModel(
             SteamService steamService,
@@ -46,7 +47,8 @@ namespace SolusManifestApp.ViewModels
             DownloadsViewModel downloadsViewModel,
             ToolsViewModel toolsViewModel,
             SettingsViewModel settingsViewModel,
-            SupportViewModel supportViewModel)
+            SupportViewModel supportViewModel,
+            DataBackupViewModel dataBackupViewModel)
         {
             _steamService = steamService;
             _settingsService = settingsService;
@@ -61,6 +63,7 @@ namespace SolusManifestApp.ViewModels
             ToolsViewModel = toolsViewModel;
             SettingsViewModel = settingsViewModel;
             SupportViewModel = supportViewModel;
+            DataBackupViewModel = dataBackupViewModel;
 
             // Start at Home page
             CurrentPage = GetOrCreateView("Home", () => new HomePage { DataContext = HomeViewModel });
@@ -121,6 +124,9 @@ namespace SolusManifestApp.ViewModels
                     break;
                 case "support":
                     NavigateToSupport();
+                    break;
+                case "databackup":
+                    NavigateToDataBackup();
                     break;
             }
         }
@@ -201,6 +207,15 @@ namespace SolusManifestApp.ViewModels
 
             CurrentPage = GetOrCreateView("Support", () => new SupportPage { DataContext = SupportViewModel });
             CurrentPageName = "Support";
+        }
+
+        [RelayCommand]
+        private void NavigateToDataBackup()
+        {
+            if (!CanNavigateAway()) return;
+
+            CurrentPage = GetOrCreateView("DataBackup", () => new DataBackupPage { DataContext = DataBackupViewModel });
+            CurrentPageName = "DataBackup";
         }
 
         [RelayCommand]

@@ -38,9 +38,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Solus Manifest App ${{ github.ref_name }}
+          name: Basement Manager Pro ${{ github.ref_name }}
           body: |
-            ## 🎮 Solus Manifest App ${{ github.ref_name }}
+            ## 🎮 Basement Manager Pro ${{ github.ref_name }}
 
             **Download the executable below and run it - no installation required!**
 
@@ -48,7 +48,7 @@ jobs:
             See the commit history for detailed changes.
 
             ### Installation
-            1. Download `SolusManifestApp.exe`
+            1. Download `BasementManagerPro.exe`
             2. Run the executable
             3. Enter your API key in Settings
             4. Start managing your Steam depots!
@@ -61,6 +61,6 @@ jobs:
             ---
 
             **Full changelog**: https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}
-          files: ./bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/SolusManifestApp.exe
+          files: ./bin/Release/net8.0-windows10.0.19041.0/win-x64/publish/BasementManagerPro.exe
           draft: false
           prerelease: false
