@@ -93,6 +93,12 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private bool _canGoNext;
 
+        [ObservableProperty]
+        private ObservableCollection<int> _pageNumbers = new();
+
+        [ObservableProperty]
+        private string _goToPageText = string.Empty;
+
         public List<string> SortOptions { get; } = new() { "Name", "Size", "Install Date", "Last Updated" };
 
         public LibraryViewModel(
@@ -680,6 +686,7 @@ namespace SolusManifestApp.ViewModels
                     // Update pagination state
                     CanGoPrevious = CurrentPage > 1;
                     CanGoNext = CurrentPage < TotalPages;
+                    UpdatePageNumbers();
 
                     // Update status message
                     if (ItemsPerPage <= 0)
@@ -711,6 +718,64 @@ namespace SolusManifestApp.ViewModels
             {
                 CurrentPage--;
                 ApplyFilters();
+            }
+        }
+
+        [RelayCommand]
+        private void GoToPage(int pageNumber)
+        {
+            if (pageNumber < 1 || pageNumber > TotalPages || pageNumber == CurrentPage) return;
+
+            CurrentPage = pageNumber;
+            ApplyFilters();
+        }
+
+        [RelayCommand]
+        private void GoToPageFromText()
+        {
+            if (string.IsNullOrWhiteSpace(GoToPageText)) return;
+
+            if (int.TryParse(GoToPageText, out int pageNumber))
+            {
+                if (pageNumber >= 1 && pageNumber <= TotalPages && pageNumber != CurrentPage)
+                {
+                    CurrentPage = pageNumber;
+                    ApplyFilters();
+                }
+            }
+            GoToPageText = string.Empty;
+        }
+
+        [RelayCommand]
+        private void ClearSearch()
+        {
+            SearchQuery = string.Empty;
+        }
+
+        private void UpdatePageNumbers()
+        {
+            PageNumbers.Clear();
+            if (TotalPages <= 0) return;
+
+            int maxVisiblePages = 7;
+            int startPage = 1;
+            int endPage = TotalPages;
+
+            if (TotalPages > maxVisiblePages)
+            {
+                int halfVisible = maxVisiblePages / 2;
+                startPage = Math.Max(1, CurrentPage - halfVisible);
+                endPage = Math.Min(TotalPages, startPage + maxVisiblePages - 1);
+
+                if (endPage - startPage < maxVisiblePages - 1)
+                {
+                    startPage = Math.Max(1, endPage - maxVisiblePages + 1);
+                }
+            }
+
+            for (int i = startPage; i <= endPage; i++)
+            {
+                PageNumbers.Add(i);
             }
         }
 

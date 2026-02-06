@@ -114,6 +114,7 @@ namespace SolusManifestApp.Models
         public double WindowHeight { get; set; } = 800;
         public int StorePageSize { get; set; } = 20;
         public int LibraryPageSize { get; set; } = 20;
+        public int StoreSuggestionLimit { get; set; } = 15;
         public bool RememberWindowPosition { get; set; } = true;
         public double? WindowLeft { get; set; } = null;
         public double? WindowTop { get; set; } = null;

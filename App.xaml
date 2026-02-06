@@ -28,6 +28,7 @@
             <converters:BoolToViewTextConverter x:Key="BoolToViewTextConverter"/>
             <converters:EqualityConverter x:Key="EqualityConverter"/>
             <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+            <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmptyToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

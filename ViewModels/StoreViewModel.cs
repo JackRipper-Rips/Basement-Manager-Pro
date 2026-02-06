@@ -22,7 +22,11 @@ namespace SolusManifestApp.ViewModels
         private readonly CacheService _cacheService;
         private readonly NotificationService _notificationService;
         private readonly ManifestStorageService _manifestStorageService;
+        private readonly AppListCacheService _appListCacheService;
         private readonly SemaphoreSlim _iconLoadSemaphore = new SemaphoreSlim(10, 10); // Max 10 concurrent downloads
+        private CancellationTokenSource? _debounceTokenSource;
+        private List<LibraryGame> _unfilteredGames = new(); // Store unfiltered games for re-filtering
+        private bool _isUpdatingFilters = false; // Prevent infinite loops when updating filter states
 
         [ObservableProperty]
         private ObservableCollection<LibraryGame> _games = new();
@@ -72,6 +76,36 @@ namespace SolusManifestApp.ViewModels
         [ObservableProperty]
         private string _currentStore = string.Empty;
 
+        [ObservableProperty]
+        private ObservableCollection<AppListEntry> _suggestions = new();
+
+        [ObservableProperty]
+        private bool _showSuggestions;
+
+        [ObservableProperty]
+        private AppListEntry? _selectedSuggestion;
+
+        [ObservableProperty]
+        private bool _hideSoundtrack;
+
+        [ObservableProperty]
+        private bool _hideDemo;
+
+        [ObservableProperty]
+        private bool _hidePlaytest;
+
+        [ObservableProperty]
+        private bool _hideTrailer;
+
+        [ObservableProperty]
+        private bool _hideArtbook;
+
+        [ObservableProperty]
+        private bool _hideSdk;
+
+        [ObservableProperty]
+        private bool _selectAllFilters;
+
         private int PageSize => _settingsService.LoadSettings().StorePageSize;
 
         public Action? ScrollToTopAction { get; set; }
@@ -115,7 +149,8 @@ namespace SolusManifestApp.ViewModels
             SettingsService settingsService,
             CacheService cacheService,
             NotificationService notificationService,
-            ManifestStorageService manifestStorageService)
+            ManifestStorageService manifestStorageService,
+            AppListCacheService appListCacheService)
         {
             _manifestApiService = manifestApiService;
             _downloadService = downloadService;
@@ -123,6 +158,7 @@ namespace SolusManifestApp.ViewModels
             _cacheService = cacheService;
             _notificationService = notificationService;
             _manifestStorageService = manifestStorageService;
+            _appListCacheService = appListCacheService;
 
             // Auto-load games on startup
             _ = InitializeAsync();
@@ -173,10 +209,185 @@ namespace SolusManifestApp.ViewModels
 
         partial void OnSearchQueryChanged(string value)
         {
-            // Auto-search when query is cleared
-            if (string.IsNullOrWhiteSpace(value) && Games.Count > 0)
+            // Handle autocomplete suggestions
+            if (string.IsNullOrWhiteSpace(value))
             {
-                _ = LoadGamesAsync();
+                ShowSuggestions = false;
+                Suggestions.Clear();
+                // Auto-search when query is cleared
+                if (Games.Count > 0)
+                {
+                    _ = LoadGamesAsync();
+                }
+                return;
+            }
+
+            // Debounce autocomplete search
+            _debounceTokenSource?.Cancel();
+            _debounceTokenSource = new CancellationTokenSource();
+            var token = _debounceTokenSource.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(150, token);
+                    if (token.IsCancellationRequested) return;
+
+                    var settings = _settingsService.LoadSettings();
+                    var suggestionLimit = settings.StoreSuggestionLimit;
+                    var results = _appListCacheService.Search(value, suggestionLimit);
+
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        Suggestions.Clear();
+                        foreach (var result in results)
+                        {
+                            Suggestions.Add(result);
+                        }
+                        ShowSuggestions = Suggestions.Count > 0;
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                }
+            }, token);
+        }
+
+        [RelayCommand]
+        private void SelectSuggestion(AppListEntry? suggestion)
+        {
+            if (suggestion == null) return;
+
+            SearchQuery = suggestion.AppId.ToString();
+            ShowSuggestions = false;
+            _ = SearchGames();
+        }
+
+        [RelayCommand]
+        private void HideSuggestions()
+        {
+            ShowSuggestions = false;
+        }
+
+        [RelayCommand]
+        private void ClearSearch()
+        {
+            SearchQuery = string.Empty;
+            ShowSuggestions = false;
+            Suggestions.Clear();
+            // Reload games to show all
+            _ = LoadGamesAsync();
+        }
+
+        partial void OnHideSoundtrackChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnHideDemoChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnHidePlaytestChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnHideTrailerChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnHideArtbookChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnHideSdkChanged(bool value)
+        {
+            if (!_isUpdatingFilters)
+            {
+                UpdateSelectAllState();
+                ReapplyFilters();
+            }
+        }
+
+        partial void OnSelectAllFiltersChanged(bool value)
+        {
+            if (_isUpdatingFilters) return;
+
+            _isUpdatingFilters = true;
+            try
+            {
+                // Select or deselect all filters
+                HideSoundtrack = value;
+                HideDemo = value;
+                HidePlaytest = value;
+                HideTrailer = value;
+                HideArtbook = value;
+                HideSdk = value;
+            }
+            finally
+            {
+                _isUpdatingFilters = false;
+            }
+
+            // Apply filters once after all changes
+            ReapplyFilters();
+        }
+
+        private void UpdateSelectAllState()
+        {
+            if (_isUpdatingFilters) return;
+
+            _isUpdatingFilters = true;
+            try
+            {
+                // If all filters are checked, check SelectAllFilters
+                // If any filter is unchecked, uncheck SelectAllFilters
+                SelectAllFilters = HideSoundtrack && HideDemo && HidePlaytest &&
+                                   HideTrailer && HideArtbook && HideSdk;
+            }
+            finally
+            {
+                _isUpdatingFilters = false;
+            }
+        }
+
+        private void ReapplyFilters()
+        {
+            // Re-apply filters to stored unfiltered games without reloading from API
+            if (_unfilteredGames.Count == 0)
+                return;
+
+            var filteredGames = ApplyFilters(_unfilteredGames);
+
+            Games.Clear();
+            foreach (var game in filteredGames)
+            {
+                Games.Add(game);
             }
         }
 
@@ -289,6 +500,9 @@ namespace SolusManifestApp.ViewModels
         [RelayCommand]
         private async Task SearchGames()
         {
+            // Close suggestions popup
+            ShowSuggestions = false;
+
             var apiKey = GetActiveApiKey();
 
             if (string.IsNullOrEmpty(apiKey))
@@ -320,7 +534,13 @@ namespace SolusManifestApp.ViewModels
 
                 if (result != null && result.Results.Count > 0)
                 {
-                    foreach (var game in result.Results)
+                    // Store unfiltered games for re-filtering later
+                    _unfilteredGames = new List<LibraryGame>(result.Results);
+
+                    // Apply filters
+                    var filteredGames = ApplyFilters(result.Results);
+
+                    foreach (var game in filteredGames)
                     {
                         Games.Add(game);
                     }
@@ -400,7 +620,13 @@ namespace SolusManifestApp.ViewModels
                 {
                     Games.Clear();
 
-                    foreach (var game in result.Games)
+                    // Store unfiltered games for re-filtering later
+                    _unfilteredGames = new List<LibraryGame>(result.Games);
+
+                    // Apply filters
+                    var filteredGames = ApplyFilters(result.Games);
+
+                    foreach (var game in filteredGames)
                     {
                         Games.Add(game);
                     }
@@ -445,6 +671,66 @@ namespace SolusManifestApp.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private bool ShouldFilterGame(LibraryGame game)
+        {
+            var name = game.GameName.ToLower();
+
+            if (HideSoundtrack)
+            {
+                // Match "soundtrack" or "soundtracks" as whole words
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bsoundtracks?\b"))
+                    return true;
+                // Match " OST" or "OST " or " OST " as whole word
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bost\b"))
+                    return true;
+            }
+
+            if (HideDemo)
+            {
+                // Match "demo" as a whole word (not "demolition")
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bdemo\b"))
+                    return true;
+            }
+
+            if (HidePlaytest)
+            {
+                // Match "playtest" as whole words
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bplaytest\b"))
+                    return true;
+            }
+
+            if (HideTrailer)
+            {
+                // Match "trailer" as whole words
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\btrailer\b"))
+                    return true;
+            }
+
+            if (HideArtbook)
+            {
+                // Match "artbook" as whole words
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bartbook\b"))
+                    return true;
+            }
+
+            if (HideSdk)
+            {
+                // Match "sdk" as whole word
+                if (System.Text.RegularExpressions.Regex.IsMatch(name, @"\bsdk\b"))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private List<LibraryGame> ApplyFilters(List<LibraryGame> games)
+        {
+            if (!HideSoundtrack && !HideDemo && !HidePlaytest && !HideTrailer && !HideArtbook && !HideSdk)
+                return games;
+
+            return games.Where(game => !ShouldFilterGame(game)).ToList();
         }
 
         private async Task LoadAllGameIconsAsync(List<LibraryGame> games)

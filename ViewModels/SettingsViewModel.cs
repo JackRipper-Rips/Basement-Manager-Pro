@@ -87,6 +87,9 @@ namespace SolusManifestApp.ViewModels
         private int _libraryPageSize;
 
         [ObservableProperty]
+        private int _storeSuggestionLimit;
+
+        [ObservableProperty]
         private bool _rememberWindowPosition;
 
         [ObservableProperty]
@@ -190,6 +193,7 @@ namespace SolusManifestApp.ViewModels
         partial void OnConfirmBeforeUninstallChanged(bool value) => MarkAsUnsaved();
         partial void OnStorePageSizeChanged(int value) => MarkAsUnsaved();
         partial void OnLibraryPageSizeChanged(int value) => MarkAsUnsaved();
+        partial void OnStoreSuggestionLimitChanged(int value) => MarkAsUnsaved();
         partial void OnRememberWindowPositionChanged(bool value) => MarkAsUnsaved();
         partial void OnWindowLeftChanged(double? value) => MarkAsUnsaved();
         partial void OnWindowTopChanged(double? value) => MarkAsUnsaved();
@@ -326,6 +330,7 @@ namespace SolusManifestApp.ViewModels
             ConfirmBeforeUninstall = Settings.ConfirmBeforeUninstall;
             StorePageSize = Settings.StorePageSize;
             LibraryPageSize = Settings.LibraryPageSize;
+            StoreSuggestionLimit = Settings.StoreSuggestionLimit;
             RememberWindowPosition = Settings.RememberWindowPosition;
             WindowLeft = Settings.WindowLeft;
             WindowTop = Settings.WindowTop;
@@ -398,6 +403,7 @@ namespace SolusManifestApp.ViewModels
             Settings.ConfirmBeforeUninstall = ConfirmBeforeUninstall;
             Settings.StorePageSize = StorePageSize;
             Settings.LibraryPageSize = LibraryPageSize;
+            Settings.StoreSuggestionLimit = StoreSuggestionLimit;
             Settings.RememberWindowPosition = RememberWindowPosition;
             Settings.WindowLeft = WindowLeft;
             Settings.WindowTop = WindowTop;

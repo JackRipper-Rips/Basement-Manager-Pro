@@ -98,6 +98,7 @@ namespace SolusManifestApp
                     services.AddSingleton<ConfigKeysUploadService>();
                     services.AddSingleton<ManifestStorageService>();
                     services.AddSingleton<FixApplierService>();
+                    services.AddSingleton<AppListCacheService>();
 
                     // ViewModels
                     services.AddSingleton<MainViewModel>();
@@ -195,6 +196,10 @@ namespace SolusManifestApp
             {
                 _ = CheckForUpdatesAsync(settings.AutoUpdate);
             }
+
+            // Initialize app list cache service
+            var appListCacheService = _host.Services.GetRequiredService<AppListCacheService>();
+            _ = appListCacheService.InitializeAsync();
 
             // Start background config keys upload service
             var configKeysUploadService = _host.Services.GetRequiredService<ConfigKeysUploadService>();

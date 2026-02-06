@@ -301,6 +301,22 @@
                                     <ComboBoxItem Content="Show all (no pagination)" Tag="0"/>
                                 </ComboBox>
 
+                                <TextBlock Text="Store Autocomplete Suggestions Limit"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <ComboBox SelectedValue="{Binding StoreSuggestionLimit}"
+                                          SelectedValuePath="Tag"
+                                          FontSize="14"
+                                          Padding="10,8"
+                                          Margin="0,0,0,10">
+                                    <ComboBoxItem Content="5 suggestions" Tag="5"/>
+                                    <ComboBoxItem Content="10 suggestions" Tag="10"/>
+                                    <ComboBoxItem Content="15 suggestions (default)" Tag="15"/>
+                                    <ComboBoxItem Content="20 suggestions" Tag="20"/>
+                                    <ComboBoxItem Content="30 suggestions" Tag="30"/>
+                                    <ComboBoxItem Content="50 suggestions" Tag="50"/>
+                                </ComboBox>
+
                                 <TextBlock Text="Theme changes will be applied when you save settings"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="11"

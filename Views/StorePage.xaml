@@ -44,17 +44,127 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0"
-                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="13"
-                     Height="32"
-                     Padding="10,0"
-                     VerticalContentAlignment="Center"
-                     Margin="0,0,10,0">
-                <TextBox.InputBindings>
-                    <KeyBinding Key="Enter" Command="{Binding SearchGamesCommand}"/>
-                </TextBox.InputBindings>
-            </TextBox>
+            <Grid Grid.Column="0" Margin="0,0,10,0">
+                <TextBox x:Name="SearchTextBox"
+                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="13"
+                         Height="32"
+                         Padding="10,0,35,0"
+                         VerticalContentAlignment="Center"
+                         LostFocus="SearchTextBox_LostFocus">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchGamesCommand}"/>
+                        <KeyBinding Key="Escape" Command="{Binding HideSuggestionsCommand}"/>
+                    </TextBox.InputBindings>
+                </TextBox>
+
+                <!-- Clear Button (X) -->
+                <Button Height="26"
+                        Width="26"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,5,0"
+                        Command="{Binding ClearSearchCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        ToolTip="Clear search"
+                        Visibility="{Binding SearchQuery, Converter={StaticResource StringNotEmptyToVisibilityConverter}}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="13">
+                                <TextBlock Text="✕"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource SecondaryDarkBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Autocomplete Popup -->
+                <Popup x:Name="SuggestionsPopup"
+                       PlacementTarget="{Binding ElementName=SearchTextBox}"
+                       Placement="Bottom"
+                       IsOpen="{Binding ShowSuggestions}"
+                       StaysOpen="False"
+                       AllowsTransparency="True"
+                       PopupAnimation="Fade">
+                    <Border Background="{DynamicResource CardBackgroundBrush}"
+                            BorderBrush="{DynamicResource AccentBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Width="{Binding ActualWidth, ElementName=SearchTextBox}"
+                            MaxHeight="500">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      MaxHeight="500">
+                            <ListBox ItemsSource="{Binding Suggestions}"
+                                     SelectedItem="{Binding SelectedSuggestion}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding AppId}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   FontWeight="SemiBold"
+                                                   Width="70"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Name}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="8,5"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd"
+                                                        Background="{TemplateBinding Background}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SecondaryDarkBrush}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="SuggestionItem_Click"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            </ListBox>
+                        </ScrollViewer>
+                    </Border>
+                </Popup>
+            </Grid>
 
             <Button Grid.Column="1"
                     Content="🔍 Search"
@@ -111,6 +221,66 @@
                         </TextBlock>
                     </Button.Content>
                 </Button>
+            </WrapPanel>
+
+            <!-- Filters -->
+            <WrapPanel Orientation="Horizontal" Margin="0,8,0,0">
+                <TextBlock Text="Filters:"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,6"/>
+
+                <CheckBox Content="Select All"
+                          IsChecked="{Binding SelectAllFilters}"
+                          Foreground="{DynamicResource AccentBrush}"
+                          FontSize="12"
+                          FontWeight="SemiBold"
+                          VerticalAlignment="Center"
+                          Margin="0,0,15,6"
+                          ToolTip="Select or deselect all filters at once"/>
+
+                <CheckBox Content="Hide Soundtrack/OST"
+                          IsChecked="{Binding HideSoundtrack}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,6"/>
+
+                <CheckBox Content="Hide Demo"
+                          IsChecked="{Binding HideDemo}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,6"/>
+
+                <CheckBox Content="Hide Playtest"
+                          IsChecked="{Binding HidePlaytest}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,6"/>
+
+                <CheckBox Content="Hide Trailer"
+                          IsChecked="{Binding HideTrailer}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,6"/>
+
+                <CheckBox Content="Hide Artbook"
+                          IsChecked="{Binding HideArtbook}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,10,6"/>
+
+                <CheckBox Content="Hide SDK"
+                          IsChecked="{Binding HideSdk}"
+                          Foreground="{DynamicResource TextPrimaryBrush}"
+                          FontSize="12"
+                          VerticalAlignment="Center"
+                          Margin="0,0,0,6"/>
             </WrapPanel>
         </StackPanel>
 
