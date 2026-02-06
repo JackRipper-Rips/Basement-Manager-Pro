@@ -465,5 +465,292 @@ namespace SolusManifestApp.Services
 
             return disabledAppIds;
         }
+
+        public (bool success, string message) ResetAllLuaFiles()
+        {
+            try
+            {
+                var (luaFiles, _) = FindLuaFiles();
+                if (luaFiles.Count == 0)
+                {
+                    return (false, "No .lua files found");
+                }
+
+                int processedCount = 0;
+                foreach (var luaFile in luaFiles)
+                {
+                    var content = File.ReadAllText(luaFile);
+                    var lines = content.Split('\n').ToList();
+                    bool modified = false;
+
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        var trimmed = lines[i].Trim();
+
+                        // Remove -- from setManifestid lines
+                        if (trimmed.StartsWith("--setManifestid"))
+                        {
+                            lines[i] = lines[i].Replace("--setManifestid", "setManifestid");
+                            modified = true;
+                        }
+                        // Remove -- from addappid lines ONLY if they have a key (3rd parameter)
+                        else if (trimmed.StartsWith("--addappid"))
+                        {
+                            // Get the line without the comment
+                            var uncommentedLine = trimmed.Substring(2); // Remove --
+
+                            // Check if this addappid line has a key (3rd parameter)
+                            if (HasKeyParameterForReset(uncommentedLine))
+                            {
+                                lines[i] = lines[i].Replace("--addappid", "addappid");
+                                modified = true;
+                            }
+                            // Otherwise leave it commented as-is
+                        }
+                    }
+
+                    if (modified)
+                    {
+                        File.WriteAllText(luaFile, string.Join("\n", lines));
+                        processedCount++;
+                    }
+                }
+
+                return (true, $"Successfully reset {processedCount} lua file(s)");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Failed to reset lua files: {ex.Message}");
+            }
+        }
+
+        // 64bit mode methods
+        public (bool success, string message) DisableAutoUpdatesForApp64bit(string appId)
+        {
+            var luaFilePath = Path.Combine(_stpluginPath, $"{appId}.lua");
+            if (!File.Exists(luaFilePath))
+            {
+                return (false, $"Could not find {appId}.lua file");
+            }
+
+            try
+            {
+                var content = File.ReadAllText(luaFilePath);
+                var lines = content.Split('\n').ToList();
+                bool modified = false;
+
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    var trimmed = lines[i].Trim();
+
+                    // Check if this is an addappid line that's not already commented
+                    if (trimmed.StartsWith("addappid") && !trimmed.StartsWith("--"))
+                    {
+                        // Parse the line to check if it has a key (3rd parameter)
+                        var hasKey = HasKeyParameter(trimmed, appId);
+
+                        if (hasKey)
+                        {
+                            // Comment out this line
+                            lines[i] = "--" + lines[i];
+                            modified = true;
+                        }
+                    }
+                }
+
+                if (modified)
+                {
+                    File.WriteAllText(luaFilePath, string.Join("\n", lines));
+                    return (true, $"Successfully disabled auto-updates for {appId} (64bit mode)");
+                }
+
+                return (true, $"No changes needed for {appId}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Failed to disable auto-updates: {ex.Message}");
+            }
+        }
+
+        public (bool success, string message) EnableAutoUpdatesForApp64bit(string appId)
+        {
+            var luaFilePath = Path.Combine(_stpluginPath, $"{appId}.lua");
+            if (!File.Exists(luaFilePath))
+            {
+                return (false, $"Could not find {appId}.lua file");
+            }
+
+            try
+            {
+                var content = File.ReadAllText(luaFilePath);
+                var lines = content.Split('\n').ToList();
+                bool modified = false;
+
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    var trimmed = lines[i].Trim();
+
+                    // Check if this is a commented addappid line with a key
+                    if (trimmed.StartsWith("--addappid"))
+                    {
+                        // Uncomment this line
+                        lines[i] = lines[i].Replace("--addappid", "addappid");
+                        modified = true;
+                    }
+                }
+
+                if (modified)
+                {
+                    File.WriteAllText(luaFilePath, string.Join("\n", lines));
+                    return (true, $"Successfully enabled auto-updates for {appId} (64bit mode)");
+                }
+
+                return (true, $"No changes needed for {appId}");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Failed to enable auto-updates: {ex.Message}");
+            }
+        }
+
+        public bool IsAutoUpdatesEnabled64bit(string appId)
+        {
+            var luaFilePath = Path.Combine(_stpluginPath, $"{appId}.lua");
+            if (!File.Exists(luaFilePath))
+            {
+                return false;
+            }
+
+            try
+            {
+                var content = File.ReadAllText(luaFilePath);
+                var lines = content.Split('\n');
+
+                // In 64bit mode, if ANY addappid line with a key is commented, updates are DISABLED
+                // If ALL addappid lines with keys are uncommented, updates are ENABLED
+                bool hasCommentedAddAppId = false;
+
+                foreach (var line in lines)
+                {
+                    var trimmed = line.Trim();
+
+                    // Check for commented addappid lines with keys
+                    if (trimmed.StartsWith("--addappid"))
+                    {
+                        // This is a commented addappid line
+                        // Check if it would have had a key parameter
+                        var uncommentedLine = trimmed.Substring(2); // Remove --
+                        if (HasKeyParameter(uncommentedLine.Trim(), appId))
+                        {
+                            hasCommentedAddAppId = true;
+                            break; // Found at least one commented line with key, updates are disabled
+                        }
+                    }
+                }
+
+                // If we found commented addappid lines with keys, updates are disabled
+                // Otherwise, updates are enabled
+                return !hasCommentedAddAppId;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool HasKeyParameter(string addappidLine, string mainAppId)
+        {
+            try
+            {
+                // Parse the addappid line to check if it has a 3rd parameter (key)
+                // Format: addappid(1588551, 1, "432543264365464562456") -- Comment
+                // or:     addappid(1588551,1,"432543264365464562456") -- Comment
+                // or:     addappid(1588550) -- Main app id (no key)
+
+                // Remove comment if present
+                var lineWithoutComment = addappidLine;
+                var commentIndex = addappidLine.IndexOf("--");
+                if (commentIndex > 0)
+                {
+                    lineWithoutComment = addappidLine.Substring(0, commentIndex);
+                }
+
+                // Extract the part between parentheses
+                var startParen = lineWithoutComment.IndexOf('(');
+                var endParen = lineWithoutComment.IndexOf(')');
+
+                if (startParen == -1 || endParen == -1 || endParen <= startParen)
+                {
+                    return false;
+                }
+
+                var parameters = lineWithoutComment.Substring(startParen + 1, endParen - startParen - 1);
+
+                // Split by comma and count parameters
+                var parts = parameters.Split(',');
+
+                if (parts.Length < 3)
+                {
+                    // Less than 3 parameters means no key
+                    return false;
+                }
+
+                // Extract the first parameter (app id) and check if it's the main app id
+                var firstParam = parts[0].Trim();
+                if (firstParam == mainAppId)
+                {
+                    // This is the main app id line - DON'T comment it out even if it has a key
+                    return false;
+                }
+
+                // Has 3 parameters and it's not the main app id - it has a key
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool HasKeyParameterForReset(string addappidLine)
+        {
+            try
+            {
+                // Parse the addappid line to check if it has a 3rd parameter (key)
+                // This version is used for reset - doesn't check against main app id
+                // Format: addappid(1588551, 1, "432543264365464562456") -- Comment
+                // or:     addappid(1588551,1,"432543264365464562456") -- Comment
+                // or:     addappid(1588550) -- Main app id (no key)
+
+                // Remove comment if present
+                var lineWithoutComment = addappidLine;
+                var commentIndex = addappidLine.IndexOf("--");
+                if (commentIndex > 0)
+                {
+                    lineWithoutComment = addappidLine.Substring(0, commentIndex);
+                }
+
+                // Extract the part between parentheses
+                var startParen = lineWithoutComment.IndexOf('(');
+                var endParen = lineWithoutComment.IndexOf(')');
+
+                if (startParen == -1 || endParen == -1 || endParen <= startParen)
+                {
+                    return false;
+                }
+
+                var parameters = lineWithoutComment.Substring(startParen + 1, endParen - startParen - 1);
+
+                // Split by comma and count parameters
+                var parts = parameters.Split(',');
+
+                // Has 3 or more parameters = has a key
+                return parts.Length >= 3;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

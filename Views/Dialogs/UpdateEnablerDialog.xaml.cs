@@ -11,13 +11,34 @@ namespace SolusManifestApp.Views.Dialogs
     {
         public List<SelectableApp> Apps { get; set; }
         public List<SelectableApp> SelectedApps { get; private set; }
+        private List<SelectableApp> FilteredApps { get; set; }
 
         public UpdateEnablerDialog(List<SelectableApp> apps)
         {
             InitializeComponent();
             Apps = apps;
-            AppListBox.ItemsSource = Apps;
+            FilteredApps = new List<SelectableApp>(Apps);
+            AppListBox.ItemsSource = FilteredApps;
             SelectedApps = new List<SelectableApp>();
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var searchText = SearchBox.Text.ToLower();
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                FilteredApps = new List<SelectableApp>(Apps);
+            }
+            else
+            {
+                FilteredApps = Apps.Where(app =>
+                    app.Name.ToLower().Contains(searchText) ||
+                    app.AppId.Contains(searchText)
+                ).ToList();
+            }
+
+            AppListBox.ItemsSource = FilteredApps;
         }
 
         private void SelectAll_Click(object sender, RoutedEventArgs e)

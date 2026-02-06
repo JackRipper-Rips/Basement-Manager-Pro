@@ -9,6 +9,12 @@ namespace SolusManifestApp.Models
         DepotDownloader
     }
 
+    public enum UpdateMode
+    {
+        Steamtools64bit,
+        Legacy32bit
+    }
+
     public enum AppTheme
     {
         Default,
@@ -79,6 +85,7 @@ namespace SolusManifestApp.Models
         // Steam Configuration
         public string SteamPath { get; set; } = string.Empty;
         public ToolMode Mode { get; set; } = ToolMode.SteamTools;
+        public UpdateMode DisableUpdateMode { get; set; } = UpdateMode.Steamtools64bit;
 
         // Downloads & Installation
         public string DownloadsPath { get; set; } = string.Empty;

@@ -1221,7 +1221,11 @@ namespace SolusManifestApp.ViewModels
                 foreach (var luaFile in luaFiles)
                 {
                     var appId = _luaFileManager.ExtractAppId(luaFile);
-                    bool isEnabled = _luaFileManager.IsAutoUpdatesEnabled(appId);
+
+                    // Check update status based on mode
+                    bool isEnabled = settings.DisableUpdateMode == UpdateMode.Steamtools64bit
+                        ? _luaFileManager.IsAutoUpdatesEnabled64bit(appId)
+                        : _luaFileManager.IsAutoUpdatesEnabled(appId);
 
                     // Only show apps that have updates disabled
                     if (!isEnabled)
@@ -1256,7 +1260,11 @@ namespace SolusManifestApp.ViewModels
 
                     foreach (var app in dialog.SelectedApps)
                     {
-                        var (success, _) = _luaFileManager.EnableAutoUpdatesForApp(app.AppId);
+                        // Call appropriate method based on mode
+                        var (success, _) = settings.DisableUpdateMode == UpdateMode.Steamtools64bit
+                            ? _luaFileManager.EnableAutoUpdatesForApp64bit(app.AppId)
+                            : _luaFileManager.EnableAutoUpdatesForApp(app.AppId);
+
                         if (success)
                             successCount++;
                         else
@@ -1305,7 +1313,11 @@ namespace SolusManifestApp.ViewModels
                 foreach (var luaFile in luaFiles)
                 {
                     var appId = _luaFileManager.ExtractAppId(luaFile);
-                    bool isEnabled = _luaFileManager.IsAutoUpdatesEnabled(appId);
+
+                    // Check update status based on mode
+                    bool isEnabled = settings.DisableUpdateMode == UpdateMode.Steamtools64bit
+                        ? _luaFileManager.IsAutoUpdatesEnabled64bit(appId)
+                        : _luaFileManager.IsAutoUpdatesEnabled(appId);
 
                     // Only show apps that have updates enabled
                     if (isEnabled)
@@ -1340,7 +1352,11 @@ namespace SolusManifestApp.ViewModels
 
                     foreach (var app in dialog.SelectedApps)
                     {
-                        var (success, _) = _luaFileManager.DisableAutoUpdatesForApp(app.AppId);
+                        // Call appropriate method based on mode
+                        var (success, _) = settings.DisableUpdateMode == UpdateMode.Steamtools64bit
+                            ? _luaFileManager.DisableAutoUpdatesForApp64bit(app.AppId)
+                            : _luaFileManager.DisableAutoUpdatesForApp(app.AppId);
+
                         if (success)
                             successCount++;
                         else

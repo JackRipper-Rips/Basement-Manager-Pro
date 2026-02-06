@@ -158,11 +158,59 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+                        <!-- Search Box -->
+                        <TextBox Grid.Row="0"
+                                 x:Name="SearchBox"
+                                 TextChanged="SearchBox_TextChanged"
+                                 Padding="10,8"
+                                 Margin="5,5,5,10"
+                                 FontSize="14"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"
+                                 Background="{DynamicResource SecondaryDarkBrush}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6">
+                                                    <Grid>
+                                                        <TextBlock Text="Search by game name or app ID..."
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   FontSize="14"
+                                                                   Padding="10,8"
+                                                                   IsHitTestVisible="False">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                        <ScrollViewer x:Name="PART_ContentHost"
+                                                                      Padding="10,8"
+                                                                      VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
                         <!-- Select All/None -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,5,5,10">
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5,5,5,10">
                             <Button Content="Select All"
                                     Click="SelectAll_Click"
                                     Style="{StaticResource ModernButtonStyle}"
@@ -178,7 +226,7 @@
                                     Padding="15,0"/>
                         </StackPanel>
 
-                        <ScrollViewer Grid.Row="1"
+                        <ScrollViewer Grid.Row="2"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl x:Name="AppListBox">
                                 <ItemsControl.ItemTemplate>

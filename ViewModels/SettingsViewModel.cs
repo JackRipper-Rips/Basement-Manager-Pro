@@ -114,6 +114,12 @@ namespace SolusManifestApp.ViewModels
         private bool _isDepotDownloaderMode;
 
         [ObservableProperty]
+        private bool _isSteamtools64bitMode;
+
+        [ObservableProperty]
+        private bool _isLegacy32bitMode;
+
+        [ObservableProperty]
         private string _selectedThemeName = "Default";
 
         [ObservableProperty]
@@ -234,6 +240,26 @@ namespace SolusManifestApp.ViewModels
             MarkAsUnsaved();
         }
 
+        partial void OnIsSteamtools64bitModeChanged(bool value)
+        {
+            if (value)
+            {
+                IsLegacy32bitMode = false;
+                Settings.DisableUpdateMode = UpdateMode.Steamtools64bit;
+            }
+            MarkAsUnsaved();
+        }
+
+        partial void OnIsLegacy32bitModeChanged(bool value)
+        {
+            if (value)
+            {
+                IsSteamtools64bitMode = false;
+                Settings.DisableUpdateMode = UpdateMode.Legacy32bit;
+            }
+            MarkAsUnsaved();
+        }
+
         public SettingsViewModel(
             SteamService steamService,
             SettingsService settingsService,
@@ -308,6 +334,10 @@ namespace SolusManifestApp.ViewModels
             // Set mode radio buttons
             IsSteamToolsMode = Settings.Mode == ToolMode.SteamTools;
             IsDepotDownloaderMode = Settings.Mode == ToolMode.DepotDownloader;
+
+            // Set update mode radio buttons
+            IsSteamtools64bitMode = Settings.DisableUpdateMode == UpdateMode.Steamtools64bit;
+            IsLegacy32bitMode = Settings.DisableUpdateMode == UpdateMode.Legacy32bit;
 
             // Set theme
             SelectedThemeName = Settings.Theme.ToString();
@@ -793,6 +823,55 @@ namespace SolusManifestApp.ViewModels
                 len /= 1024;
             }
             return $"{len:0.##} {sizes[order]}";
+        }
+
+        [RelayCommand]
+        private void ResetAllLuaFiles()
+        {
+            var result = MessageBoxHelper.Show(
+                "This will remove all comment markers (--) from setManifestid and addappid lines in all lua files.\n\nThis action cannot be undone. Continue?",
+                "Reset All Lua Files",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var steamPath = _steamService.GetSteamPath();
+                    if (string.IsNullOrEmpty(steamPath))
+                    {
+                        _notificationService.ShowError("Steam path not configured");
+                        return;
+                    }
+
+                    var stpluginPath = System.IO.Path.Combine(steamPath, "config", "stplug-in");
+                    if (!System.IO.Directory.Exists(stpluginPath))
+                    {
+                        _notificationService.ShowError("stplug-in directory not found");
+                        return;
+                    }
+
+                    var luaFileManager = new LuaFileManager(stpluginPath);
+                    var (success, message) = luaFileManager.ResetAllLuaFiles();
+
+                    if (success)
+                    {
+                        _notificationService.ShowSuccess(message);
+                        StatusMessage = message;
+                    }
+                    else
+                    {
+                        _notificationService.ShowError(message);
+                        StatusMessage = $"Error: {message}";
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    _notificationService.ShowError($"Failed to reset lua files: {ex.Message}");
+                    StatusMessage = $"Error: {ex.Message}";
+                }
+            }
         }
 
         [RelayCommand]
