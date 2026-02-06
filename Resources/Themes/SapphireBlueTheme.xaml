@@ -1,21 +1,21 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Forest Theme -->
-    <Color x:Key="PrimaryDark">#0f1a0f</Color>
-    <Color x:Key="SecondaryDark">#1f3a1f</Color>
-    <Color x:Key="CardBackground">#081208</Color>
-    <Color x:Key="CardHover">#152315</Color>
-    <Color x:Key="Accent">#66bb6a</Color>
-    <Color x:Key="AccentHover">#4caf50</Color>
-    <Color x:Key="TextPrimary">#e8f5e9</Color>
-    <Color x:Key="TextSecondary">#a5d6a7</Color>
-    <Color x:Key="BorderColor">#2f5a2f</Color>
-    <Color x:Key="Success">#81c784</Color>
-    <Color x:Key="SuccessHover">#a5d6a7</Color>
-    <Color x:Key="Warning">#ffb74d</Color>
-    <Color x:Key="WarningHover">#ffcc80</Color>
-    <Color x:Key="Danger">#e57373</Color>
+    <!-- Sapphire Blue Theme -->
+    <Color x:Key="PrimaryDark">#0F1B2E</Color>
+    <Color x:Key="SecondaryDark">#1A2C4A</Color>
+    <Color x:Key="CardBackground">#09111F</Color>
+    <Color x:Key="CardHover">#142138</Color>
+    <Color x:Key="Accent">#0D63F7</Color>
+    <Color x:Key="AccentHover">#3E83FF</Color>
+    <Color x:Key="TextPrimary">#E1EFFF</Color>
+    <Color x:Key="TextSecondary">#A6C8FF</Color>
+    <Color x:Key="BorderColor">#29477A</Color>
+    <Color x:Key="Success">#00F5B8</Color>
+    <Color x:Key="SuccessHover">#5BFFD7</Color>
+    <Color x:Key="Warning">#FFD000</Color>
+    <Color x:Key="WarningHover">#FFDA3B</Color>
+    <Color x:Key="Danger">#FF4D6B</Color>
 
     <!-- Solid Color Brushes -->
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
@@ -35,8 +35,8 @@
 
     <!-- Gradient Brushes -->
     <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#66bb6a" Offset="0"/>
-        <GradientStop Color="#388e3c" Offset="1"/>
+        <GradientStop Color="#0D63F7" Offset="0"/>
+        <GradientStop Color="#003C9E" Offset="1"/>
     </LinearGradientBrush>
 
 </ResourceDictionary>

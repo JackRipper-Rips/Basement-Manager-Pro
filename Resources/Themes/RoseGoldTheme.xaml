@@ -1,21 +1,21 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Forest Theme -->
-    <Color x:Key="PrimaryDark">#0f1a0f</Color>
-    <Color x:Key="SecondaryDark">#1f3a1f</Color>
-    <Color x:Key="CardBackground">#081208</Color>
-    <Color x:Key="CardHover">#152315</Color>
-    <Color x:Key="Accent">#66bb6a</Color>
-    <Color x:Key="AccentHover">#4caf50</Color>
-    <Color x:Key="TextPrimary">#e8f5e9</Color>
-    <Color x:Key="TextSecondary">#a5d6a7</Color>
-    <Color x:Key="BorderColor">#2f5a2f</Color>
-    <Color x:Key="Success">#81c784</Color>
-    <Color x:Key="SuccessHover">#a5d6a7</Color>
-    <Color x:Key="Warning">#ffb74d</Color>
-    <Color x:Key="WarningHover">#ffcc80</Color>
-    <Color x:Key="Danger">#e57373</Color>
+    <!-- Rose Gold Theme -->
+    <Color x:Key="PrimaryDark">#2d1e1e</Color>
+    <Color x:Key="SecondaryDark">#4a3333</Color>
+    <Color x:Key="CardBackground">#1a1010</Color>
+    <Color x:Key="CardHover">#3a2525</Color>
+    <Color x:Key="Accent">#e29578</Color>
+    <Color x:Key="AccentHover">#d67d5e</Color>
+    <Color x:Key="TextPrimary">#ffddd2</Color>
+    <Color x:Key="TextSecondary">#edb5a0</Color>
+    <Color x:Key="BorderColor">#6a4f4f</Color>
+    <Color x:Key="Success">#83c5be</Color>
+    <Color x:Key="SuccessHover">#9dd1cc</Color>
+    <Color x:Key="Warning">#ffc09f</Color>
+    <Color x:Key="WarningHover">#ffd1ba</Color>
+    <Color x:Key="Danger">#ee6c4d</Color>
 
     <!-- Solid Color Brushes -->
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
@@ -35,8 +35,8 @@
 
     <!-- Gradient Brushes -->
     <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#66bb6a" Offset="0"/>
-        <GradientStop Color="#388e3c" Offset="1"/>
+        <GradientStop Color="#e29578" Offset="0"/>
+        <GradientStop Color="#d67d5e" Offset="1"/>
     </LinearGradientBrush>
 
 </ResourceDictionary>

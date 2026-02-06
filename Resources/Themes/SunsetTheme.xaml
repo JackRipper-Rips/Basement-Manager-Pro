@@ -10,8 +10,11 @@
     <Color x:Key="AccentHover">#ff5722</Color>
     <Color x:Key="TextPrimary">#ffe0d6</Color>
     <Color x:Key="TextSecondary">#d4a5a5</Color>
+    <Color x:Key="BorderColor">#6d3849</Color>
     <Color x:Key="Success">#66bb6a</Color>
+    <Color x:Key="SuccessHover">#81c784</Color>
     <Color x:Key="Warning">#ffa726</Color>
+    <Color x:Key="WarningHover">#ffb74d</Color>
     <Color x:Key="Danger">#ef5350</Color>
 
     <!-- Solid Color Brushes -->
@@ -24,8 +27,11 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}"/>
+    <SolidColorBrush x:Key="SuccessHoverBrush" Color="{StaticResource SuccessHover}"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}"/>
+    <SolidColorBrush x:Key="WarningHoverBrush" Color="{StaticResource WarningHover}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
 
     <!-- Gradient Brushes -->
     <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">

@@ -233,14 +233,42 @@
                                           FontSize="14"
                                           Padding="10,8"
                                           Margin="0,0,0,15">
-                                    <ComboBoxItem Content="Default (Steam)" Tag="Default"/>
-                                    <ComboBoxItem Content="True Dark Mode" Tag="Dark"/>
-                                    <ComboBoxItem Content="Light Mode" Tag="Light"/>
+                                    <ComboBoxItem Content="Default (Steam-like)" Tag="Default"/>
+                                    <ComboBoxItem Content="Nord" Tag="Nord"/>
+                                    <ComboBoxItem Content="Aurora" Tag="Aurora"/>
+                                    <ComboBoxItem Content="Ocean" Tag="Ocean"/>
+                                    <ComboBoxItem Content="Ocean 2" Tag="Ocean2"/>
+                                    <ComboBoxItem Content="Sapphire Blue" Tag="Sapphireblue"/>
+                                    <ComboBoxItem Content="Glacier" Tag="Glacier"/>
+                                    <ComboBoxItem Content="Deep Space" Tag="Deepspace"/>
+                                    <ComboBoxItem Content="Dark" Tag="Dark"/>
+                                    <ComboBoxItem Content="Volcanic Ash" Tag="Volcanicash"/>
                                     <ComboBoxItem Content="Cherry" Tag="Cherry"/>
-                                    <ComboBoxItem Content="Sunset" Tag="Sunset"/>
+                                    <ComboBoxItem Content="Ruby Red" Tag="Rubyred"/>
                                     <ComboBoxItem Content="Forest" Tag="Forest"/>
+                                    <ComboBoxItem Content="Emerald Isle" Tag="Emeraldisle"/>
+                                    <ComboBoxItem Content="Toxic Slime" Tag="Toxicslime"/>
+                                    <ComboBoxItem Content="Matrix" Tag="Matrix"/>
                                     <ComboBoxItem Content="Grape" Tag="Grape"/>
+                                    <ComboBoxItem Content="Violet" Tag="Violet"/>
+                                    <ComboBoxItem Content="Amethyst" Tag="Amethyst"/>
+                                    <ComboBoxItem Content="Bubblegum Pop" Tag="Bubblegumpop"/>
+                                    <ComboBoxItem Content="Dracula" Tag="Dracula"/>
+                                    <ComboBoxItem Content="Sunset" Tag="Sunset"/>
                                     <ComboBoxItem Content="Cyberpunk" Tag="Cyberpunk"/>
+                                    <ComboBoxItem Content="Synthwave" Tag="Synthwave"/>
+                                    <ComboBoxItem Content="80s Vaporwave" Tag="Vaporwave"/>
+                                    <ComboBoxItem Content="Midnight" Tag="Midnight"/>
+                                    <ComboBoxItem Content="RoseGold" Tag="RoseGold"/>
+                                    <ComboBoxItem Content="Espresso" Tag="Espresso"/>
+                                    <ComboBoxItem Content="Coffee House" Tag="Coffeehouse"/>
+                                    <ComboBoxItem Content="DesertSand" Tag="DesertSand"/>
+                                    <ComboBoxItem Content="Rustic" Tag="Rustic"/>
+                                    <ComboBoxItem Content="Golden Hour" Tag="Goldenhour"/>
+                                    <ComboBoxItem Content="Solar" Tag="Solar"/>
+                                    <ComboBoxItem Content="Light" Tag="Light"/>
+                                    <ComboBoxItem Content="Paper" Tag="Paper"/>
+                                    <ComboBoxItem Content="Zen Garden" Tag="Zengarden"/>
                                 </ComboBox>
 
                                 <TextBlock Text="Store Page Size (games per page)"

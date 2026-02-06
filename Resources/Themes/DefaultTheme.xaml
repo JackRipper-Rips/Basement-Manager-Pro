@@ -12,7 +12,9 @@
     <Color x:Key="TextSecondary">#8f98a0</Color>
     <Color x:Key="BorderColor">#3d5a73</Color>
     <Color x:Key="Success">#5cb85c</Color>
+    <Color x:Key="SuccessHover">#6fd86f</Color>
     <Color x:Key="Warning">#f0ad4e</Color>
+    <Color x:Key="WarningHover">#f4c168</Color>
     <Color x:Key="Danger">#d9534f</Color>
 
     <!-- Solid Color Brushes -->
@@ -25,7 +27,9 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}"/>
+    <SolidColorBrush x:Key="SuccessHoverBrush" Color="{StaticResource SuccessHover}"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}"/>
+    <SolidColorBrush x:Key="WarningHoverBrush" Color="{StaticResource WarningHover}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource Danger}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
 
