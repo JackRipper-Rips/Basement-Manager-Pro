@@ -1482,6 +1482,92 @@ namespace SolusManifestApp.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void OpenLuaFolder()
+        {
+            try
+            {
+                var stpluginPath = _steamService.GetStPluginPath();
+
+                if (string.IsNullOrEmpty(stpluginPath))
+                {
+                    _notificationService.ShowError("Could not find Steam stplug-in directory");
+                    return;
+                }
+
+                if (!Directory.Exists(stpluginPath))
+                {
+                    _notificationService.ShowError($"stplug-in directory does not exist: {stpluginPath}");
+                    return;
+                }
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    Arguments = $"\"{stpluginPath}\"",
+                    UseShellExecute = true
+                });
+
+                _logger.Info($"Opened stplug-in folder: {stpluginPath}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to open stplug-in folder: {ex.Message}");
+                _notificationService.ShowError($"Failed to open folder: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private void EditLuaFile(LibraryItem item)
+        {
+            try
+            {
+                if (item.ItemType != LibraryItemType.Lua)
+                {
+                    _notificationService.ShowWarning("This feature is only available for Lua games");
+                    return;
+                }
+
+                var stpluginPath = _steamService.GetStPluginPath();
+                if (string.IsNullOrEmpty(stpluginPath))
+                {
+                    _notificationService.ShowError("Could not find Steam stplug-in directory");
+                    return;
+                }
+
+                // Try both enabled and disabled lua files
+                var luaFile = Path.Combine(stpluginPath, $"{item.AppId}.lua");
+                var luaFileDisabled = Path.Combine(stpluginPath, $"{item.AppId}.lua.disabled");
+
+                string? fileToEdit = null;
+                if (File.Exists(luaFile))
+                {
+                    fileToEdit = luaFile;
+                }
+                else if (File.Exists(luaFileDisabled))
+                {
+                    fileToEdit = luaFileDisabled;
+                }
+
+                if (fileToEdit == null)
+                {
+                    _notificationService.ShowError($"Lua file not found for {item.Name} (App ID: {item.AppId})");
+                    return;
+                }
+
+                // Open the Lua editor dialog
+                var dialog = new Views.Dialogs.LuaEditorDialog(fileToEdit);
+                dialog.ShowDialog();
+
+                _logger.Info($"Opened Lua editor for {item.Name} ({fileToEdit})");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to edit Lua file: {ex.Message}");
+                _notificationService.ShowError($"Failed to open editor: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Caches BitmapImages in memory for all library items with available icon paths.
         /// Runs asynchronously in background to improve Library page loading performance.

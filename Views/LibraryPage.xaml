@@ -39,6 +39,11 @@
                         Style="{StaticResource SecondaryButtonStyle}"
                         Margin="0,0,8,6"
                         ToolTip="Refresh game names and icons from Steam's database"/>
+                <Button Content="📁 Open Lua Folder"
+                        Command="{Binding OpenLuaFolderCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Margin="0,0,8,6"
+                        ToolTip="Open the stplug-in folder containing Lua files"/>
                 <Button Content="⬇ Enable Updates"
                         Style="{StaticResource SecondaryButtonStyle}"
                         Command="{Binding EnableAutoUpdatesCommand}"
@@ -324,6 +329,20 @@
                                     <MenuItem Header="📋 View Details"
                                               Command="{Binding ShowDetailsCommand}"
                                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                    <MenuItem Header="📝 Edit Lua File"
+                                              Command="{Binding EditLuaFileCommand}"
+                                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                        <MenuItem.Style>
+                                            <Style TargetType="MenuItem">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PlacementTarget.DataContext.ItemType, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Value="Lua">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </MenuItem.Style>
+                                    </MenuItem>
                                     <MenuItem Header="📁 Open in Explorer"
                                               Command="{Binding OpenInExplorerCommand}"
                                               CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
@@ -524,6 +543,23 @@
                                         <Run Text="{Binding LastUpdated, StringFormat='Updated: {0:MMM d}', TargetNullValue='Not updated', Mode=OneWay}"/>
                                     </TextBlock>
 
+                                    <!-- Edit Lua button - Only visible for Lua items -->
+                                    <Button Content="📝 Edit Lua"
+                                            Command="{Binding DataContext.EditLuaFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="0,0,0,5">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ItemType}" Value="Lua">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
                                     <Button Content="Uninstall"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Command="{Binding DataContext.UninstallItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -531,14 +567,34 @@
                                 </StackPanel>
 
                                 <!-- Actions (List View) -->
-                                <Button Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" Content="Uninstall"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding DataContext.UninstallItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        VerticalAlignment="Center"
-                                        Padding="15,8"
-                                        Margin="10"
-                                        Visibility="{Binding DataContext.IsListView, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="3"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center"
+                                            Margin="10"
+                                            Visibility="{Binding DataContext.IsListView, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <!-- Edit Lua button - Only visible for Lua items -->
+                                    <Button Content="📝 Edit Lua"
+                                            Command="{Binding DataContext.EditLuaFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Padding="15,8"
+                                            Margin="0,0,5,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ItemType}" Value="Lua">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Uninstall"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding DataContext.UninstallItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Padding="15,8"/>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </DataTemplate>

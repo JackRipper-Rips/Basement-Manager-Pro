@@ -128,13 +128,7 @@ namespace SolusManifestApp
             _singleInstance = new SingleInstanceHelper();
             if (!_singleInstance.TryAcquire())
             {
-                // Not the first instance, notify user and send args to first instance
-                MessageBox.Show(
-                    "Basement Manager Pro is already running.\n\nThe existing instance has been brought to the foreground.",
-                    "Already Running",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
+                // Not the first instance, send args to first instance silently
                 var args = string.Join(" ", e.Args);
                 if (!string.IsNullOrEmpty(args))
                 {
